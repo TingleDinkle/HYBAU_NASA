@@ -381,7 +381,6 @@ function updateMapTiles() {
 }
 
 // Update the initializeMap function to store the tile layer
-// Modify this part in your existing DOMContentLoaded listener:
 function initializeMap(center, zoom) {
     window.map = L.map('map', {
         center: center,
