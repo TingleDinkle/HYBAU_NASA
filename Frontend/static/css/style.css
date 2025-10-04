@@ -13,6 +13,17 @@ body {
     height: 100vh;
 }
 
+#map {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: transparent;
+    opacity: 1;
+    z-index: 1;
+}
+
 /* Top Navigation Bar */
 .top-nav {
     position: fixed;

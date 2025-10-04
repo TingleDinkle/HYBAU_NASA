@@ -1,5 +1,16 @@
 // JavaScript for interactive elements
 
+// Initialize Leaflet map
+document.addEventListener('DOMContentLoaded', () => {
+    const mapContainer = document.getElementById('map');
+    if (mapContainer && typeof L !== 'undefined') {
+        const map = L.map('map').setView([21.0285, 105.8542], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+    }
+});
+
 // Toggle Info Panel
 const infoPanel = document.getElementById('info-panel');
 const infoToggleBtn = document.getElementById('info-toggle');
