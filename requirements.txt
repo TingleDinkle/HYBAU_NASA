@@ -1,6 +1,6 @@
 Python:
     scikit-learn
-    statsmodel
+    statsmodels
     pandas
     numpy (installed alongside scikit-learn)
     matplotlib
