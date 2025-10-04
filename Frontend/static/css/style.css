@@ -667,3 +667,76 @@ body.info-open .right-panel {
     background: linear-gradient(90deg, transparent, #667eea, transparent);
     animation: loading 1.5s linear infinite;
 }
+
+@keyframes loading {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .left-sidebar {
+        width: 100%;
+        transform: translateX(-100%);
+    }
+
+    .left-sidebar.visible {
+        transform: translateX(0);
+    }
+
+    .toggle-sidebar {
+        display: none;
+    }
+
+    .search-container {
+        display: none;
+    }
+
+    #info-panel {
+        width: 100%;
+    }
+
+    #info-panel.open~#panel-toggle {
+        right: 10px;
+        top: 130px;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .legend {
+        display: none;
+    }
+}
+
+/* Tooltips */
+.tooltip {
+    position: relative;
+}
+
+.tooltip::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.9);
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+}
+
+.tooltip:hover::after {
+    opacity: 1;
+}
