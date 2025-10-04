@@ -4,9 +4,21 @@
 document.addEventListener('DOMContentLoaded', () => {
     const mapContainer = document.getElementById('map');
     if (mapContainer && typeof L !== 'undefined') {
-        const map = L.map('map').setView([21.0285, 105.8542], 13);
+        var map = L.map('map', {
+            // TODO: ASK USER LOCATION
+            center: [21.0278, 105.8342], // Hanoi
+            zoom: 6,
+            minZoom: 3,
+            maxZoom: 8,
+        });
+        map.setMaxBounds([
+            [-90, -180],
+            [90, 180]
+        ]);
+        map.options.maxBoundsViscosity = 1.0;
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
+            attribution: '© OpenStreetMap contributors',
+            noWrap: true
         }).addTo(map);
     }
 });
