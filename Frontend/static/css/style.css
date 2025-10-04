@@ -1,0 +1,15 @@
+/* Where the real battle is */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: #0f0f0f;
+    color: #fff;
+    overflow: hidden;
+    height: 100vh;
+}
+
