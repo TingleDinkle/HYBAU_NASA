@@ -4,22 +4,63 @@
 document.addEventListener('DOMContentLoaded', () => {
     const mapContainer = document.getElementById('map');
     if (mapContainer && typeof L !== 'undefined') {
-        var map = L.map('map', {
-            // TODO: ASK USER LOCATION
-            center: [21.0278, 105.8342], // Hanoi
-            zoom: 7,
-            minZoom: 3,
-            maxZoom: 7,
-        });
-        map.setMaxBounds([
-            [-90, -Infinity],
-            [90, Infinity]
-        ]);
-        map.options.maxBoundsViscosity = 1.0;
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors',
-            noWrap: false
-        }).addTo(map);
+        // Default center (Hanoi) - will be updated if geolocation is available
+        let mapCenter = [21.0278, 105.8342];
+        let mapZoom = 7;
+        
+        // Try to get user's location
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    // Success: Use user's location
+                    mapCenter = [position.coords.latitude, position.coords.longitude];
+                    mapZoom = 10; // Closer zoom for user location
+                    console.log('User location detected:', mapCenter);
+                    initializeMap(mapCenter, mapZoom);
+                },
+                (error) => {
+                    // Error: Use default location
+                    console.log('Geolocation error:', error.message);
+                    console.log('Using default location (Hanoi)');
+                    initializeMap(mapCenter, mapZoom);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 300000 // 5 minutes
+                }
+            );
+        } else {
+            // Geolocation not supported: Use default location
+            console.log('Geolocation not supported, using default location (Hanoi)');
+            initializeMap(mapCenter, mapZoom);
+        }
+        
+        function initializeMap(center, zoom) {
+            window.map = L.map('map', {
+                center: center,
+                zoom: zoom,
+                minZoom: 3,
+                maxZoom: 18,
+            });
+            window.map.setMaxBounds([
+                [-90, -Infinity],
+                [90, Infinity]
+            ]);
+            window.map.options.maxBoundsViscosity = 1.0;
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                noWrap: false
+            }).addTo(window.map);
+            
+            // Add user location marker if geolocation was successful
+            if (center[0] !== 21.0278 || center[1] !== 105.8342) {
+                window.userLocationMarker = L.marker(center)
+                    .addTo(window.map)
+                    .bindPopup('Your Location')
+                    .openPopup();
+            }
+        }
     }
 });
 
@@ -85,8 +126,52 @@ controlBtns.forEach(btn => {
         setTimeout(() => {
             btn.style.transform = '';
         }, 100);
+        
+        // Handle specific button actions
+        const tooltip = btn.getAttribute('data-tooltip');
+        if (tooltip === 'My Location') {
+            getCurrentLocation();
+        }
     });
 });
+
+// Function to get current location
+function getCurrentLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const userLat = position.coords.latitude;
+                const userLng = position.coords.longitude;
+                
+                // Get the map instance (assuming it's stored globally)
+                if (window.map) {
+                    window.map.setView([userLat, userLng], 12);
+                    
+                    // Add or update user location marker
+                    if (window.userLocationMarker) {
+                        window.userLocationMarker.setLatLng([userLat, userLng]);
+                    } else {
+                        window.userLocationMarker = L.marker([userLat, userLng])
+                            .addTo(window.map)
+                            .bindPopup('Your Location')
+                            .openPopup();
+                    }
+                }
+            },
+            (error) => {
+                alert('Unable to get your location. Please check your browser permissions.');
+                console.log('Geolocation error:', error.message);
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 300000
+            }
+        );
+    } else {
+        alert('Geolocation is not supported by this browser.');
+    }
+}
 
 // Time Slider
 const timeSlider = document.querySelector('.time-slider');
