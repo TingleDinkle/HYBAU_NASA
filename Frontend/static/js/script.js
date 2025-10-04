@@ -310,8 +310,6 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// Add this to your script.js file
-
 // Theme Toggle Functionality
 const themeToggleBtn = document.getElementById('theme-toggle');
 let isDarkMode = true;
@@ -325,12 +323,28 @@ if (savedTheme === 'light') {
 }
 
 if (themeToggleBtn) {
+    // Update icon based on current theme
+    const updateThemeIcon = () => {
+        const icon = themeToggleBtn.querySelector('i');
+        if (isDarkMode) {
+            icon.className = 'fas fa-moon';
+        } else {
+            icon.className = 'fas fa-sun';
+        }
+    };
+    
+    // Set initial icon
+    updateThemeIcon();
+    
     themeToggleBtn.addEventListener('click', () => {
         isDarkMode = !isDarkMode;
         document.body.classList.toggle('light-mode');
         
         // Save preference
         localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+        
+        // Update icon
+        updateThemeIcon();
         
         // Update map tiles
         updateMapTiles();
