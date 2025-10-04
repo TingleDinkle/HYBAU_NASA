@@ -444,3 +444,121 @@ body.info-open .right-panel {
     font-size: 0.95rem;
     color: #888;
 }
+
+
+/* AQI Badge */
+.aqi-display {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+.aqi-label {
+    font-size: 0.9rem;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.aqi-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 1.3rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.aqi-good {
+    background: linear-gradient(135deg, #00e676, #00c853);
+    color: #fff;
+}
+
+.aqi-moderate {
+    background: linear-gradient(135deg, #ffeb3b, #fbc02d);
+    color: #333;
+}
+
+.aqi-unhealthy-sensitive {
+    background: linear-gradient(135deg, #ff9800, #f57c00);
+    color: #fff;
+}
+
+.aqi-unhealthy {
+    background: linear-gradient(135deg, #f44336, #d32f2f);
+    color: #fff;
+}
+
+.aqi-very-unhealthy {
+    background: linear-gradient(135deg, #9c27b0, #7b1fa2);
+    color: #fff;
+}
+
+.aqi-hazardous {
+    background: linear-gradient(135deg, #b71c1c, #880e4f);
+    color: #fff;
+}
+
+
+/* Info Cards */
+.info-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 12px;
+    transition: all 0.3s ease;
+}
+
+.info-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.info-card-title {
+    font-size: 0.85rem;
+    color: #999;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.info-card-value {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #fff;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.info-card-unit {
+    font-size: 1.1rem;
+    color: #888;
+    font-weight: 400;
+}
+
+.info-card-detail {
+    font-size: 0.9rem;
+    color: #aaa;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Grid Layout for Cards */
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 15px;
+}
