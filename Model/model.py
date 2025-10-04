@@ -38,13 +38,14 @@ class ARIMAModel:
             data_diff = data.diff().dropna()
             return self.best_order(data_diff, d_val + 1)
         
-    def fit(self, data) -> None:
+    def fit(self) -> None:
         """
         :param data: pd.DataFrame
         """
-        self.model = ARIMA(data, order=self.best_order(data))
-        self.result = self.model.fit()
+        self.model = ARIMA(self.data, order=self.best_order(self.data))
+        # method_kawrgs to increase maximum number of iterations (Resolve ConvergenceWarnings)
+        self.result = self.model.fit(method_kwargs={'maxiter':300})
 
     def forecast(self, steps : int = 10, ) -> np.ndarray:
-        forecast_array = self.result.forecast(steps=steps)
-        return forecast_array
+        forecast_obj = self.result.get_forecast(steps=steps)
+        return forecast_obj
