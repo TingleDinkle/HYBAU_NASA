@@ -44,7 +44,288 @@
 
     <!-- Left Sidebar -->
     <aside class="left-sidebar" id="leftSidebar">
+        <div class="sidebar-section">
+            <div class="section-title">Data Layers</div>
+            <div class="layer-grid">
+                <button class="layer-btn active" data-layer="pm25">
+                    <i class="fas fa-smog"></i>
+                    <span>PM2.5</span>
+                </button>
+                <button class="layer-btn" data-layer="pm10">
+                    <i class="fas fa-industry"></i>
+                    <span>PM10</span>
+                </button>
+                <button class="layer-btn" data-layer="no2">
+                    <i class="fas fa-car"></i>
+                    <span>NO₂</span>
+                </button>
+                <button class="layer-btn" data-layer="o3">
+                    <i class="fas fa-sun"></i>
+                    <span>O₃</span>
+                </button>
+                <button class="layer-btn" data-layer="co">
+                    <i class="fas fa-fire"></i>
+                    <span>CO</span>
+                </button>
+                <button class="layer-btn" data-layer="so2">
+                    <i class="fas fa-volcano"></i>
+                    <span>SO₂</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="section-title">Weather Layers</div>
+            <div class="layer-grid">
+                <button class="layer-btn" data-layer="temp">
+                    <i class="fas fa-temperature-high"></i>
+                    <span>Temp</span>
+                </button>
+                <button class="layer-btn" data-layer="wind">
+                    <i class="fas fa-wind"></i>
+                    <span>Wind</span>
+                </button>
+                <button class="layer-btn" data-layer="rain">
+                    <i class="fas fa-cloud-rain"></i>
+                    <span>Rain</span>
+                </button>
+                <button class="layer-btn" data-layer="clouds">
+                    <i class="fas fa-cloud"></i>
+                    <span>Clouds</span>
+                </button>
+                <button class="layer-btn" data-layer="pressure">
+                    <i class="fas fa-compress"></i>
+                    <span>Pressure</span>
+                </button>
+                <button class="layer-btn" data-layer="humidity">
+                    <i class="fas fa-tint"></i>
+                    <span>Humidity</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="section-title">Time Control</div>
+            <div class="time-control">
+                <div class="time-display">
+                    <span class="current-time">Now</span>
+                    <span class="forecast-badge">+72h forecast</span>
+                </div>
+                <input type="range" class="time-slider" min="0" max="72" value="0">
+                <div class="time-controls">
+                    <button class="time-btn"><i class="fas fa-backward"></i></button>
+                    <button class="time-btn"><i class="fas fa-play"></i></button>
+                    <button class="time-btn"><i class="fas fa-forward"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="section-title">Data Sources</div>
+            <div style="padding: 10px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+            <p style="font-size: 12px; color: rgba(255,255,255,0.7); margin-bottom: 8px;">
+                <span style="margin-right: 6px;"></span><i class="fas fa-satellite-dish"></i> NASA EarthData
+            </p>
+            <p style="font-size: 12px; color: rgba(255,255,255,0.7); margin-bottom: 8px;">
+                <span style="margin-right: 6px;"></span><i class="fas fa-database"></i> OpenAQ Platform
+            </p>
+            <p style="font-size: 12px; color: rgba(255,255,255,0.7); margin-bottom: 8px;">
+                <span style="margin-right: 6px;"></span><i class="fas fa-cloud-sun"></i> Open-Meteo
+            </p>
+            </div>
+        </div>
     </aside>
+     <!-- Toggle Sidebar Button -->
+    <div class="toggle-sidebar" id="toggleSidebar">
+        <i class="fas fa-chevron-left"></i>
+    </div>
+
+    <!-- Right Controls Panel -->
+    <div class="right-panel">
+        <button class="control-btn tooltip" data-tooltip="Zoom In">
+            <i class="fas fa-plus"></i>
+        </button>
+        <button class="control-btn tooltip" data-tooltip="Zoom Out">
+            <i class="fas fa-minus"></i>
+        </button>
+        <div class="divider"></div>
+        <button class="control-btn tooltip" data-tooltip="My Location">
+            <i class="fas fa-crosshairs"></i>
+        </button>
+        <button class="control-btn tooltip" data-tooltip="Fullscreen">
+            <i class="fas fa-expand"></i>
+        </button>
+        <div class="divider"></div>
+        <button class="control-btn tooltip" data-tooltip="Settings">
+            <i class="fas fa-cog"></i>
+        </button>
+        <button class="control-btn tooltip" data-tooltip="Info" id="info-toggle">
+            <i class="fas fa-info"></i>
+        </button>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend">
+        <div class="legend-title">PM2.5 (μg/m³)</div>
+        <div class="legend-scale" style="background: linear-gradient(90deg, #00e400 0%, #ffff00 25%, #ff7e00 50%, #ff0000 75%, #8f3f97 100%);"></div>
+        <div class="legend-labels">
+            <span>0</span>
+            <span>15</span>
+            <span>35</span>
+            <span>55</span>
+            <span>110</span>
+            <span>250+</span>
+        </div>
+    </div>
+
+    <!-- Right Info Panel -->
+    <div id="info-panel">
+        <!-- City Information Section -->
+        <div class="panel-section">
+            <div class="city-header">
+                <div class="city-name">Hanoi</div>
+                <div class="city-country">Vietnam 🇻🇳</div>
+            </div>
+
+            <div class="aqi-display">
+                <div class="aqi-label">Air Quality Index</div>
+                <div class="aqi-badge aqi-moderate">76 - Moderate</div>
+            </div>
+
+            <div class="health-advice">
+                <div class="health-advice-title">Health Recommendations</div>
+                <div class="health-advice-text">
+                    Air quality is acceptable. However, sensitive individuals should consider reducing prolonged outdoor exertion.
+                </div>
+            </div>
+        </div>
+
+        <!-- Weather Conditions Section -->
+        <div class="panel-section">
+            <h2>🌤️ Current Weather</h2>
+            
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="info-card-title">🌡️ Temperature</div>
+                    <div class="info-card-value">
+                        28<span class="info-card-unit">°C</span>
+                    </div>
+                    <div class="info-card-detail">Feels like 31°C</div>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-card-title">💧 Humidity</div>
+                    <div class="info-card-value">
+                        78<span class="info-card-unit">%</span>
+                    </div>
+                    <div class="info-card-detail">Dew point 24°C</div>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-card-title">💨 Wind Speed</div>
+                    <div class="info-card-value">
+                        12<span class="info-card-unit">km/h</span>
+                    </div>
+                    <div class="info-card-detail">Direction: NE</div>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-card-title">🌧️ Precipitation</div>
+                    <div class="info-card-value">
+                        0<span class="info-card-unit">mm</span>
+                    </div>
+                    <div class="info-card-detail">Chance: 20%</div>
+                </div>
+            </div>
+
+            <div class="info-card">
+                <div class="info-card-title">🔆 UV Index</div>
+                <div class="info-card-value">
+                    7<span class="info-card-unit">High</span>
+                </div>
+                <div class="info-card-detail">Use sun protection between 10am-4pm</div>
+            </div>
+
+            <div class="info-card">
+                <div class="info-card-title">👁️ Visibility</div>
+                <div class="info-card-value">
+                    8<span class="info-card-unit">km</span>
+                </div>
+                <div class="info-card-detail">Moderate haze present</div>
+            </div>
+        </div>
+
+        <!-- Air Pollutants Section -->
+        <div class="panel-section">
+            <h2>🏭 Air Pollutants</h2>
+            
+            <div class="pollutant-item">
+                <span class="pollutant-name">PM2.5</span>
+                <span class="pollutant-value">42 μg/m³</span>
+            </div>
+
+            <div class="pollutant-item">
+                <span class="pollutant-name">PM10</span>
+                <span class="pollutant-value">68 μg/m³</span>
+            </div>
+
+            <div class="pollutant-item">
+                <span class="pollutant-name">Ozone (O₃)</span>
+                <span class="pollutant-value">32 ppb</span>
+            </div>
+
+            <div class="pollutant-item">
+                <span class="pollutant-name">Nitrogen Dioxide (NO₂)</span>
+                <span class="pollutant-value">35 ppb</span>
+            </div>
+
+            <div class="pollutant-item">
+                <span class="pollutant-name">Carbon Monoxide (CO)</span>
+                <span class="pollutant-value">0.4 ppm</span>
+            </div>
+
+            <div class="pollutant-item">
+                <span class="pollutant-name">Sulfur Dioxide (SO₂)</span>
+                <span class="pollutant-value">12 ppb</span>
+            </div>
+        </div>
+
+        <!-- Forecast Section -->
+        <div class="panel-section">
+            <h2>📅 3-Day Forecast</h2>
+            
+            <div class="info-card">
+                <div class="info-card-title">Tomorrow</div>
+                <div class="info-card-value">
+                    29°C / 23°C
+                </div>
+                <div class="info-card-detail">⛅ Partly Cloudy • AQI: Moderate</div>
+            </div>
+
+            <div class="info-card">
+                <div class="info-card-title">Day After</div>
+                <div class="info-card-value">
+                    30°C / 24°C
+                </div>
+                <div class="info-card-detail">🌤️ Sunny • AQI: Good</div>
+            </div>
+
+            <div class="info-card">
+                <div class="info-card-title">3 Days</div>
+                <div class="info-card-value">
+                    27°C / 22°C
+                </div>
+                <div class="info-card-detail">🌧️ Light Rain • AQI: Good</div>
+            </div>
+        </div>
+
+        <div class="last-updated">
+            Last updated: Oct 3, 2025 • 10:00 ICT
+        </div>
+    </div>
+
+    <!-- Toggle Button for Info Panel -->
+    <!-- <button id="panel-toggle"></button> -->
 
     <script src="../static/js/script.js"></script>
 </body>
