@@ -1,0 +1,7 @@
+Python:
+    scikit-learn
+    statsmodel
+    pandas
+    numpy (installed alongside scikit-learn)
+    matplotlib
+    geopandas
