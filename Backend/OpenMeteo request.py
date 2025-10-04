@@ -1,3 +1,5 @@
+# This is not done. Currently data needs to be properly formatted
+# Also forecast duration need to be changed
 import requests
 
 def get_weather(lat, lon):
@@ -16,3 +18,4 @@ def get_weather(lat, lon):
 
 data = get_weather(21.0278, 105.8342)
 print(data)
+
