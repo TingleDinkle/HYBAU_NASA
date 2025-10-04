@@ -42,6 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 zoom: zoom,
                 minZoom: 3,
                 maxZoom: 8,
+                worldCopyJump: true
             });
             window.map.setMaxBounds([
                 [-90, -Infinity],
@@ -53,12 +54,67 @@ document.addEventListener('DOMContentLoaded', () => {
                 noWrap: false
             }).addTo(window.map);
             
-            // Add user location marker if geolocation was successful
-            if (center[0] !== 21.0278 || center[1] !== 105.8342) {
-                window.userLocationMarker = L.marker(center)
+            // Store user location globally for marker management
+            window.userLocation = center;
+            
+            // Always add a marker to show the current center location
+            addUserLocationMarker();
+            console.log('Location marker added at:', center);
+            
+            // Listen for map events to ensure marker stays visible
+            window.map.on('moveend', ensureUserLocationMarkerVisible);
+            window.map.on('zoomend', ensureUserLocationMarkerVisible);
+            window.map.on('viewreset', ensureUserLocationMarkerVisible);
+            
+            // Also check periodically to ensure marker is always visible
+            setInterval(ensureUserLocationMarkerVisible, 2000); // Check every 2 seconds
+        }
+        
+        function addUserLocationMarker() {
+            if (window.userLocation && window.map) {
+                console.log('Adding user location marker at:', window.userLocation);
+                
+                // Remove existing marker if it exists
+                if (window.userLocationMarker) {
+                    window.map.removeLayer(window.userLocationMarker);
+                    console.log('Removed existing marker');
+                }
+                
+                // Create a custom icon for better visibility
+                const userLocationIcon = L.divIcon({
+                    className: 'user-location-marker',
+                    html: '<div style="background-color: #ff0000; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.5);"></div>',
+                    iconSize: [20, 20],
+                    iconAnchor: [10, 10]
+                });
+                
+                // Add new marker at user location
+                window.userLocationMarker = L.marker(window.userLocation, { icon: userLocationIcon })
                     .addTo(window.map)
-                    .bindPopup('Your Location')
-                    .openPopup();
+                    .bindPopup(`Your Location<br>Lat: ${window.userLocation[0].toFixed(4)}<br>Lng: ${window.userLocation[1].toFixed(4)}`);
+                
+                console.log('User location marker added successfully');
+            } else {
+                console.log('Cannot add marker - userLocation:', window.userLocation, 'map:', window.map);
+            }
+        }
+        
+        function ensureUserLocationMarkerVisible() {
+            if (window.userLocation && window.map) {
+                // Check if marker exists and is in current view
+                const mapBounds = window.map.getBounds();
+                let markerVisible = false;
+                
+                if (window.userLocationMarker) {
+                    const markerLatLng = window.userLocationMarker.getLatLng();
+                    markerVisible = mapBounds.contains(markerLatLng);
+                }
+                
+                // If marker doesn't exist or is not visible, add it again
+                if (!window.userLocationMarker || !markerVisible) {
+                    console.log('Marker not visible in current view, recreating...');
+                    addUserLocationMarker();
+                }
             }
         }
     }
@@ -143,19 +199,15 @@ function getCurrentLocation() {
                 const userLat = position.coords.latitude;
                 const userLng = position.coords.longitude;
                 
+                // Update global user location
+                window.userLocation = [userLat, userLng];
+                
                 // Get the map instance (assuming it's stored globally)
                 if (window.map) {
-                    window.map.setView([userLat, userLng], 12);
+                    window.map.setView([userLat, userLng], 8);
                     
-                    // Add or update user location marker
-                    if (window.userLocationMarker) {
-                        window.userLocationMarker.setLatLng([userLat, userLng]);
-                    } else {
-                        window.userLocationMarker = L.marker([userLat, userLng])
-                            .addTo(window.map)
-                            .bindPopup('Your Location')
-                            .openPopup();
-                    }
+                    // Add or update user location marker using the new system
+                    addUserLocationMarker();
                 }
             },
             (error) => {
