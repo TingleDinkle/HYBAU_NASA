@@ -309,3 +309,97 @@ document.addEventListener('keydown', (e) => {
         searchBar.focus();
     }
 });
+
+// Add this to your script.js file
+
+// Theme Toggle Functionality
+const themeToggleBtn = document.getElementById('theme-toggle');
+let isDarkMode = true;
+
+// Check for saved theme preference
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme === 'light') {
+    isDarkMode = false;
+    document.body.classList.add('light-mode');
+    updateMapTiles();
+}
+
+if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', () => {
+        isDarkMode = !isDarkMode;
+        document.body.classList.toggle('light-mode');
+        
+        // Save preference
+        localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+        
+        // Update map tiles
+        updateMapTiles();
+        
+        // Add click animation
+        themeToggleBtn.style.transform = 'scale(0.95) rotate(180deg)';
+        setTimeout(() => {
+            themeToggleBtn.style.transform = '';
+        }, 300);
+    });
+}
+
+function updateMapTiles() {
+    if (window.map && window.mapTileLayer) {
+        window.map.removeLayer(window.mapTileLayer);
+        
+        if (isDarkMode) {
+            // Dark mode map
+            window.mapTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                noWrap: false
+            });
+        } else {
+            // Light mode map - using a brighter tile set
+            window.mapTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                noWrap: false,
+                className: 'light-mode-tiles'
+            });
+        }
+        
+        window.mapTileLayer.addTo(window.map);
+    }
+}
+
+// Update the initializeMap function to store the tile layer
+// Modify this part in your existing DOMContentLoaded listener:
+function initializeMap(center, zoom) {
+    window.map = L.map('map', {
+        center: center,
+        zoom: zoom,
+        minZoom: 3,
+        maxZoom: 8,
+        worldCopyJump: true
+    });
+    window.map.setMaxBounds([
+        [-90, -Infinity],
+        [90, Infinity]
+    ]);
+    window.map.options.maxBoundsViscosity = 1.0;
+    
+    // Store tile layer globally
+    window.mapTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        noWrap: false
+    }).addTo(window.map);
+    
+    // Store user location globally for marker management
+    window.userLocation = center;
+    
+    // Always add a marker to show the current center location
+    addUserLocationMarker();
+    console.log('Location marker added at:', center);
+    
+    // Listen for map events to ensure marker stays visible
+    window.map.on('moveend', ensureUserLocationMarkerVisible);
+    window.map.on('zoomend', ensureUserLocationMarkerVisible);
+    window.map.on('viewreset', ensureUserLocationMarkerVisible);
+    
+    // Also check periodically to ensure marker is always visible
+    setInterval(ensureUserLocationMarkerVisible, 2000);
+}
