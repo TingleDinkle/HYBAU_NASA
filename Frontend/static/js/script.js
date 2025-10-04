@@ -76,6 +76,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 iconSize: [20, 20],
                 iconAnchor: [10, 10]
             });
+
+            var marker = null;
             
             // Add click event listener to print coordinates
             window.map.on('click', (e) => {
@@ -83,26 +85,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 const lng = e.latlng.lng.toFixed(6);
                 console.log(`Clicked coordinates: ${lat}, ${lng}`);
 
-                var newMarker = L.marker(e.latlng, { icon: markerIcon })
+                if (marker !== null) {
+                    window.map.removeLayer(marker);
+                }
+
+                marker = L.marker(e.latlng, { icon: markerIcon })
                     .addTo(window.map)
                     .bindPopup(`Coordinates: ${lat}, ${lng}`);
 
-                    // Dynamic host (same as current page host)
-                    const host = window.location.origin;
+                // Dynamic host (same as current page host)
+                const host = window.location.origin;
 
-                    // Build URL: host/click/lat/lng
-                    const url = `${host}/click/${lat}/${lng}`;
+                // Build URL: host/click/lat/lng
+                const url = `${host}/click/${lat}/${lng}`;
 
-                    // Send GET request
-                    fetch(url)
-                        .then(res => {
-                            if (!res.ok) throw new Error("Request failed: " + res.status);
-                            return res.text(); // or .json() if your server returns JSON
-                        })
-                        .then(data => {
-                            console.log("Server response:", data);
-                        })
-                        .catch(err => console.error(err));
+                // Send GET request
+                fetch(url)
+                    .then(res => {
+                        if (!res.ok) throw new Error("Request failed: " + res.status);
+                        return res.text(); // or .json() if your server returns JSON
+                    })
+                    .then(data => {
+                        console.log("Server response:", data);
+                    })
+                    .catch(err => console.error(err));
                 
                 // Also show an alert for immediate feedback
                 // alert(`Coordinates: ${lat}, ${lng}`);
