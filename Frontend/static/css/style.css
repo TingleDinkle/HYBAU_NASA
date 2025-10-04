@@ -562,3 +562,108 @@ body.info-open .right-panel {
     gap: 12px;
     margin-bottom: 15px;
 }
+
+/* Pollutants List */
+.pollutant-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+.pollutant-name {
+    font-size: 0.95rem;
+    color: #ccc;
+}
+
+.pollutant-value {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+/* Health Advice */
+.health-advice {
+    background: linear-gradient(135deg, rgba(100, 181, 246, 0.15), rgba(33, 150, 243, 0.15));
+    border: 1px solid rgba(100, 181, 246, 0.3);
+    border-radius: 12px;
+    padding: 18px;
+    margin-top: 15px;
+}
+
+.health-advice-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #64b5f6;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.health-advice-title::before {
+    content: "💡";
+}
+
+.health-advice-text {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: #ccc;
+}
+
+/* Last Updated */
+.last-updated {
+    font-size: 0.8rem;
+    color: #666;
+    text-align: center;
+    padding: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Toggle Switch */
+.toggle-sidebar {
+    position: fixed;
+    top: 80px;
+    left: 320px;
+    width: 30px;
+    height: 60px;
+    background: rgba(17, 24, 39, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-left: none;
+    border-radius: 0 8px 8px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 899;
+    transition: all 0.3s ease;
+}
+
+.toggle-sidebar.collapsed {
+    left: 0;
+}
+
+.toggle-sidebar:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Loading Animation */
+.loading-overlay {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: rgba(17, 24, 39, 0.95);
+    z-index: 1001;
+    display: none;
+}
+
+.loading-bar {
+    height: 100%;
+    background: linear-gradient(90deg, transparent, #667eea, transparent);
+    animation: loading 1.5s linear infinite;
+}
