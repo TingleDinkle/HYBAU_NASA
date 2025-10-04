@@ -734,9 +734,10 @@ body.info-open .right-panel {
 .tooltip::after {
     content: attr(data-tooltip);
     position: absolute;
-    bottom: 125%;
-    left: 50%;
-    transform: translateX(-50%);
+    bottom: 50%;
+    right: 100%;
+    transform: translateY(50%);
+    margin-right: 10px;
     background: rgba(0, 0, 0, 0.9);
     color: #fff;
     padding: 6px 10px;
@@ -746,6 +747,7 @@ body.info-open .right-panel {
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s;
+    z-index: 1001;
 }
 
 .tooltip:hover::after {
