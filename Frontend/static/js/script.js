@@ -7,9 +7,9 @@ document.addEventListener('DOMContentLoaded', () => {
         var map = L.map('map', {
             // TODO: ASK USER LOCATION
             center: [21.0278, 105.8342], // Hanoi
-            zoom: 6,
+            zoom: 7,
             minZoom: 3,
-            maxZoom: 8,
+            maxZoom: 7,
         });
         map.setMaxBounds([
             [-90, -180],
