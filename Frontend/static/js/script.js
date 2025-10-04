@@ -413,6 +413,38 @@ function initializeMap(center, zoom) {
     window.map.on('zoomend', ensureUserLocationMarkerVisible);
     window.map.on('viewreset', ensureUserLocationMarkerVisible);
     
-    // Also check periodically to ensure marker is always visible
+    // Check periodically to ensure marker is always visible
     setInterval(ensureUserLocationMarkerVisible, 2000);
+}
+
+// Zoom In and Zoom Out buttons
+const zoomInBtn = document.querySelector('.control-btn[data-tooltip="Zoom In"]');
+const zoomOutBtn = document.querySelector('.control-btn[data-tooltip="Zoom Out"]');
+
+if (zoomInBtn) {
+    zoomInBtn.addEventListener('click', () => {
+        if (window.map) {
+            window.map.zoomIn();
+            
+            // Add click animation
+            zoomInBtn.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                zoomInBtn.style.transform = '';
+            }, 100);
+        }
+    });
+}
+
+if (zoomOutBtn) {
+    zoomOutBtn.addEventListener('click', () => {
+        if (window.map) {
+            window.map.zoomOut();
+            
+            // Add click animation
+            zoomOutBtn.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                zoomOutBtn.style.transform = '';
+            }, 100);
+        }
+    });
 }
