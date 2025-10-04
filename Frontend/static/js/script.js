@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 (position) => {
                     // Success: Use user's location
                     mapCenter = [position.coords.latitude, position.coords.longitude];
-                    mapZoom = 10; // Closer zoom for user location
+                    mapZoom = 8; // Closer zoom for user location
                     console.log('User location detected:', mapCenter);
                     initializeMap(mapCenter, mapZoom);
                 },
@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 center: center,
                 zoom: zoom,
                 minZoom: 3,
-                maxZoom: 18,
+                maxZoom: 8,
             });
             window.map.setMaxBounds([
                 [-90, -Infinity],
