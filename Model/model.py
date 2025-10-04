@@ -48,7 +48,7 @@ class ARIMAModel:
         # method_kawrgs to increase maximum number of iterations (Resolve ConvergenceWarnings)
         self.result = self.model.fit(method_kwargs={'maxiter':300})
 
-    def forecast(self, steps : int = 3, ) -> np.ndarray:
+    def forecast(self, steps : int = 3) -> np.ndarray:
         """
         :param steps: number of steps to forecast (in this case, days)
         :return: np.ndarray of forecast obj.
