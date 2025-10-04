@@ -12,13 +12,13 @@ document.addEventListener('DOMContentLoaded', () => {
             maxZoom: 7,
         });
         map.setMaxBounds([
-            [-90, -180],
-            [90, 180]
+            [-90, -Infinity],
+            [90, Infinity]
         ]);
         map.options.maxBoundsViscosity = 1.0;
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors',
-            noWrap: true
+            noWrap: false
         }).addTo(map);
     }
 });
