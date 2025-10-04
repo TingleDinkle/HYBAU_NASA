@@ -38,9 +38,12 @@ class ARIMAModel:
         else:
             # if not stationary:
             data_diff = self.data.diff().dropna()
-            return self.check_stationary(data_diff, d_val + 1)
+            return self.best_order(data_diff, d_val + 1)
         
     def fit(self, data) -> None:
+        """
+        :param data: pd.DataFrame
+        """
         self.model = ARIMA(data, order=self.best_order(data))
         self.result = self.model.fit()
 
