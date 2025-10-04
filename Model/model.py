@@ -15,7 +15,7 @@ class ARIMAModel:
         self.result = None
         self.data = None
 
-    def check_stationary(self, data, d_val=0, max_d=2) -> int:
+    def best_order(self, data, d_val=0, max_d=2) -> list:
         """
         :param data: pd.Series
         :param d_val: current differencing count
@@ -28,10 +28,16 @@ class ARIMAModel:
 
         # 0.05 is our base
         if p_value <= 0.05 or d_val == max_d:
-            return d_val
+            # if stationary or reached max differencing
+            order_result = arma_order_select_ic(data.dropna(), ic='aic', trend='n')
+            best_aic : list = order_result.aic_min_order
+
+            best_p = best_aic[0]
+            best_q = best_aic[1]
+
+            return best_p, d_val, best_q
+        
         else:
             # if not stationary:
             data_diff = data.diff().dropna()
             return self.check_stationary(data_diff, d_val + 1)
-    
-
