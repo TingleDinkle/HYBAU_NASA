@@ -3,6 +3,7 @@ import pandas as pd
 from statsmodels.tsa.arima.model import ARIMA
 from statsmodels.tsa.stattools import arma_order_select_ic
 from statsmodels.tsa.stattools import adfuller
+import matplotlib.pyplot as plt
 
 
 
@@ -48,10 +49,14 @@ class ARIMAModel:
         # method_kawrgs to increase maximum number of iterations (Resolve ConvergenceWarnings)
         self.result = self.model.fit(method_kwargs={'maxiter':300})
 
-    def forecast(self, steps : int = 3, ) -> np.ndarray:
+    def forecast(self, steps : int = 3, detailed=True) -> np.ndarray:
         """
         :param steps: number of steps to forecast (in this case, days)
+        :param detailed: show detailed results
         :return: np.ndarray of forecast obj.
         """
-        forecast_obj = self.result.get_forecast(steps=steps)
+        if detailed:
+            forecast_obj = self.result.get_forecast(steps=steps)
+        else:
+            forecast_obj = self.result.forecast(steps=steps)
         return forecast_obj
