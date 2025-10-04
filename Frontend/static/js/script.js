@@ -68,6 +68,45 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Also check periodically to ensure marker is always visible
             setInterval(ensureUserLocationMarkerVisible, 2000); // Check every 2 seconds
+
+
+            const markerIcon = L.divIcon({
+                className: 'user-location-marker',
+                html: '<div style="background-color:rgb(48, 35, 197); width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.5);"></div>',
+                iconSize: [20, 20],
+                iconAnchor: [10, 10]
+            });
+            
+            // Add click event listener to print coordinates
+            window.map.on('click', (e) => {
+                const lat = e.latlng.lat.toFixed(6);
+                const lng = e.latlng.lng.toFixed(6);
+                console.log(`Clicked coordinates: ${lat}, ${lng}`);
+
+                var newMarker = L.marker(e.latlng, { icon: markerIcon })
+                    .addTo(window.map)
+                    .bindPopup(`Coordinates: ${lat}, ${lng}`);
+
+                    // Dynamic host (same as current page host)
+                    const host = window.location.origin;
+
+                    // Build URL: host/click/lat/lng
+                    const url = `${host}/click/${lat}/${lng}`;
+
+                    // Send GET request
+                    fetch(url)
+                        .then(res => {
+                            if (!res.ok) throw new Error("Request failed: " + res.status);
+                            return res.text(); // or .json() if your server returns JSON
+                        })
+                        .then(data => {
+                            console.log("Server response:", data);
+                        })
+                        .catch(err => console.error(err));
+                
+                // Also show an alert for immediate feedback
+                // alert(`Coordinates: ${lat}, ${lng}`);
+            });
         }
         
         function addUserLocationMarker() {
@@ -378,43 +417,6 @@ function updateMapTiles() {
         
         window.mapTileLayer.addTo(window.map);
     }
-}
-
-// Update the initializeMap function to store the tile layer
-function initializeMap(center, zoom) {
-    window.map = L.map('map', {
-        center: center,
-        zoom: zoom,
-        minZoom: 3,
-        maxZoom: 8,
-        worldCopyJump: true
-    });
-    window.map.setMaxBounds([
-        [-90, -Infinity],
-        [90, Infinity]
-    ]);
-    window.map.options.maxBoundsViscosity = 1.0;
-    
-    // Store tile layer globally
-    window.mapTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
-        noWrap: false
-    }).addTo(window.map);
-    
-    // Store user location globally for marker management
-    window.userLocation = center;
-    
-    // Always add a marker to show the current center location
-    addUserLocationMarker();
-    console.log('Location marker added at:', center);
-    
-    // Listen for map events to ensure marker stays visible
-    window.map.on('moveend', ensureUserLocationMarkerVisible);
-    window.map.on('zoomend', ensureUserLocationMarkerVisible);
-    window.map.on('viewreset', ensureUserLocationMarkerVisible);
-    
-    // Check periodically to ensure marker is always visible
-    setInterval(ensureUserLocationMarkerVisible, 2000);
 }
 
 // Zoom In and Zoom Out buttons
