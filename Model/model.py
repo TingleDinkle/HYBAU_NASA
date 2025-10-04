@@ -15,8 +15,14 @@ class ARIMAModel:
         self.result = None
         self.data = None
 
-    def check_stationary(self, data, d_val) -> int:
-        
+    def check_stationary(self, data, d_val : int) -> int:
+        """
+        Returns d value for ARIMA order.
+
+        Args:
+            data (pandas DataFrame): whatever data we get
+            d_val (int): used for recursion.
+        """
         # data will be a DataFrame by pandas
         check = adfuller(data.dropna()) # dropna() to remove NaN values
         p_value = check[1]
@@ -29,3 +35,4 @@ class ARIMAModel:
             # d = 1 (make stationary)
             return self.check_stationary(data, d_val + 1)
     
+
