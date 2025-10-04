@@ -110,3 +110,42 @@ function animateTimeline() {
     
     setTimeout(animateTimeline, 100);
 }
+
+// Search functionality (placeholder)
+const searchBar = document.querySelector('.search-bar');
+searchBar.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        console.log('Searching for:', e.target.value);
+        // Add search logic here
+    }
+});
+
+// Fullscreen toggle
+const fullscreenBtn = document.querySelector('.control-btn[data-tooltip="Fullscreen"]');
+fullscreenBtn.addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+        fullscreenBtn.querySelector('i').className = 'fas fa-compress';
+    } else {
+        document.exitFullscreen();
+        fullscreenBtn.querySelector('i').className = 'fas fa-expand';
+    }
+});
+
+// Simulate real-time updates
+setInterval(() => {
+    const lastUpdated = document.querySelector('.info-details p');
+    const minutes = Math.floor(Math.random() * 5) + 1;
+    lastUpdated.textContent = `Last updated: ${minutes} min ago`;
+}, 30000);
+
+// Add keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && document.fullscreenElement) {
+        document.exitFullscreen();
+    }
+    if (e.key === 'f' && e.ctrlKey) {
+        e.preventDefault();
+        searchBar.focus();
+    }
+});
