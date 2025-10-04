@@ -1,6 +1,3 @@
-# UNFORMATTED DATA, NOT THE FINAL VERSION. For now, this should be good
-# Duration of forecast should also matter
-
 from pprint import pprint
 import requests
 import datetime
@@ -18,11 +15,11 @@ def weather_meteo(lat, lon, days=5, timezone="auto"):
             "temperature_2m",
             "wind_speed_10m",
             "wind_direction_10m",
-            "precipitation"
+            "precipitation",
             "cloud_cover",
             "surface_pressure",
-            "relative_humidity_2m"
-            ]),
+            "relative_humidity_2m",
+     ]),
         "start_date": start_date.isoformat(),
         "end_date": end_date.isoformat(),
         "timezone": timezone
@@ -32,9 +29,14 @@ def weather_meteo(lat, lon, days=5, timezone="auto"):
     return recall.json()
 
 if __name__ == "__main__":
-    latitude, longtitude = 21.0278, 105.8342 #Swap this out later to fit with front end
-    
-    data = [weather_meteo(latitude, longtitude)]
-    for x in data:
-        pprint(x)
-        print("\n")
+    latitude, longtitude = 21.0278, 105.8342 #Change this later to match with frontend
+    data = weather_meteo(latitude, longtitude)
+
+    print(data["hourly_units"]) #Every hour is an entry, which makes it 144 entries in total
+    for x in ["temperature_2m",                       #temperature
+              "wind_speed_10m", "wind_direction_10m", #wind
+              "precipitation",                        #rain
+              "cloud_cover",                          #clouds
+              "surface_pressure",                     #pressure
+              "relative_humidity_2m"]:                #humidity
+        print(data["hourly"][x])
