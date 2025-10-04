@@ -1,7 +1,11 @@
 Python:
-    scikit-learn
     statsmodels
     pandas
     numpy (installed alongside scikit-learn)
     matplotlib
     geopandas
+    earthaccess
+    openaq
+    requests
+    netCDF4
+    
