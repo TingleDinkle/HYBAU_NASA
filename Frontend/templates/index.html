@@ -9,6 +9,7 @@
 
 </head>
 <body>
+    <!-- Map Placeholder -->
     <div id="map"></div>
 
     <!-- Loading Overlay -->
@@ -18,7 +19,27 @@
 
     <!-- Top Navigation -->
     <nav class="top-nav">
-        
+         <div class="logo">
+            <i class="fas fa-satellite"></i>
+            <span>HYBAU</span>
+        </div>
+
+        <div class="search-container" style="position: relative;">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" class="search-bar" placeholder="Search location...">
+        </div>
+
+        <div class="mode-switcher">
+            <button class="mode-btn active" data-mode="air-quality">
+                <i class="fas fa-wind"></i> Air Quality
+            </button>
+            <button class="mode-btn" data-mode="weather">
+                <i class="fas fa-cloud-sun"></i> Weather
+            </button>
+            <button class="mode-btn" data-mode="forecast">
+                <i class="fas fa-chart-line"></i> Forecast
+            </button>
+        </div>
     </nav>
 
     <!-- Left Sidebar -->
