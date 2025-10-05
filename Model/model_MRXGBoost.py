@@ -19,7 +19,7 @@ class MRXGBoost: #Multi-output Regression eXtreme Gradient Boost (Forest)
                     This helps XGBoost learn temporal data encoded in features.
                     See technique: Lag for time series analysis
         :param time_feature: If true, time series features are included. This includes hour, dayofweek, sin of hour day etc.
-                    Depends on the situation, it might help.
+                    Depends on the situation, it might help. This will NOT work if your df does not have a datetime index
         """
         self.is_time = time_feature
         self.n_lag: int = n_lag
@@ -76,6 +76,10 @@ class MRXGBoost: #Multi-output Regression eXtreme Gradient Boost (Forest)
         :param train_perc: Specify how to split the data into train and test sets (for evaluation). Default is 0.8 or 80% for training set.
         :return: Nothing.
         """
+        if (not isinstance(df.index, pd.DatetimeIndex)) and (self.is_time):
+            self.is_time = False
+            print("!! The given Dataframe does not have a datetime index. The time_feature option has been turned off. !!")
+
         target_cols = df.columns
         new_df = self.__create_features(df)
         self.Y = new_df[list(target_cols)] #Split into X and Y
@@ -178,15 +182,14 @@ if __name__ == "__main__":
     data = data['hourly']
     df = pd.DataFrame(data)
     df['time'] = pd.to_datetime(df['time'])
-    df.set_index('time', inplace=True)
+    #df.set_index('time', inplace=True)
+    df.drop(columns=['time'], inplace=True)
     print(df.tail())
 
     # Try out the model
-    model = MRXGBoost(n_lag=24, time_feature=False)
+    model = MRXGBoost(n_lag=24, time_feature=True)
     model.process_data(df, train_perc=0.8)
     model.fit()
     model.evaluate(graph=True)
     forecast_df = model.forecast(steps=36)
     print(forecast_df)
-    plt.plot(forecast_df['temperature_2m'])
-    plt.show()
