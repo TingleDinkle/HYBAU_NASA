@@ -21,7 +21,7 @@ function calculateAQI(concentration, breakpoints) {
 }
 
 const BREAKPOINTS = {
-    pm25: [
+    pm2_5: [
         { C_low: 0.0, C_high: 12.0, I_low: 0, I_high: 50 },
         { C_low: 12.1, C_high: 35.4, I_low: 51, I_high: 100 },
         { C_low: 35.5, C_high: 55.4, I_low: 101, I_high: 150 },
@@ -58,6 +58,8 @@ function updatePollutantsFromData(data) {
 
     console.log("Overall AQI:", aqIndex);
 
+    aqiElement = document.getElementById("aqi");
+    aqiElement.textContent = aqIndex;
 }
 
 function updateWeatherFromData(data) {
@@ -80,22 +82,11 @@ function updateWeatherFromData(data) {
     const cloudCover = first(w.cloud_cover);
     const pressure = first(w.surface_pressure);
 
-    // 🌡️ Temperature
     updateInfoCard("🌡️ Temperature", temperature, u.temperature_2m, `Feels like ${Math.round(temperature + 2)}${u.temperature_2m || ""}`);
-
-    // 💧 Humidity
     updateInfoCard("💧 Humidity", humidity, u.relative_humidity_2m, `Dew point ${Math.round((humidity / 100) * temperature)}${u.temperature_2m || ""}`);
-
-    // 💨 Wind Speed
     updateInfoCard("💨 Wind Speed", windSpeed, u.wind_speed_10m, `Direction: ${windDir}°`);
-
-    // 🌧️ Precipitation
     updateInfoCard("🌧️ Precipitation", precipitation, u.precipitation, `Cloud cover: ${cloudCover}${u.cloud_cover || ""}`);
-
-    // ☁️ Cloud Cover
     updateInfoCard("☁️ Cloud Cover", cloudCover, u.cloud_cover, cloudCover > 80 ? "Mostly cloudy" : "Partly cloudy");
-
-    // 🧭 Surface Pressure
     updateInfoCard("🧭 Surface Pressure", pressure, u.surface_pressure, pressure > 1013 ? "High pressure" : "Low pressure");
 }
 
