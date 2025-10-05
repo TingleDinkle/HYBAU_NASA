@@ -1,4 +1,4 @@
-from flask import Flask, send_file, make_response, request, render_template, abort
+from flask import Flask, send_file, make_response, request, render_template, abort, jsonify
 from data_handler.air_request import air_meteo
 from data_handler.weather_request import weather_meteo
 from data_handler.tempo_data import TempoData
@@ -21,7 +21,7 @@ def handle_click(lat, lng) -> tuple:
     pre_air, pre_wea = prediction(air, weather)
 
     
-    return air, weather, pre_air, pre_wea
+    return jsonify(air, weather, pre_air, pre_wea)
 
 def main_data(lat : float, lng : float) -> tuple:
     """
