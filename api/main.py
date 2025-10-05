@@ -30,8 +30,8 @@ def main_data(lat : float, lng : float) -> tuple:
     :lng float: longitude
     :returns: tuple of json
     """
-    air_quality = air_meteo(lat, lng, days=30) # .json
-    weather = weather_meteo(lat, lng, days=30) # .json
+    air_quality = air_meteo(lat, lng, days=60) # .json
+    weather = weather_meteo(lat, lng, days=60) # .json
 
     return air_quality, weather
 
