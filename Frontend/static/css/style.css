@@ -974,9 +974,9 @@ body.light-mode .logo span {
     color: #1a1a1a;
 }
 
-body:not(.light-mode) #map {
+/* body:not(.light-mode) #map {
     filter: hue-rotate(285deg) saturate(1.30) brightness(1.20) contrast(0.90);
-}
+} */
 
 /* Ensure tiles themselves get the tint/brightness in dark mode */
 body:not(.light-mode) .leaflet-tile-pane {
