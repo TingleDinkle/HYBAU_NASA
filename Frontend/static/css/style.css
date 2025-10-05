@@ -975,8 +975,18 @@ body.light-mode .logo span {
 }
 
 body:not(.light-mode) #map {
-    
-    filter: brightness(1.05) saturate(1.15);
+    filter: hue-rotate(285deg) saturate(1.30) brightness(1.20) contrast(0.90);
+}
+
+/* Ensure tiles themselves get the tint/brightness in dark mode */
+body:not(.light-mode) .leaflet-tile-pane {
+    filter: hue-rotate(295deg) saturate(1.45) brightness(1.18) contrast(0.92);
+    will-change: filter;
+}
+
+/* Reset filters in light mode so tiles look normal */
+body.light-mode .leaflet-tile-pane {
+    filter: none;
 }
 
 
