@@ -853,6 +853,28 @@ body.light-mode .info-card {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
+body.light-mode .logo span {
+    color: #1a1a1a;
+}
+
+/* Light mode info panel text fixes */
+body.light-mode .city-name,
+body.light-mode .panel-section h2,
+body.light-mode .info-card-value,
+body.light-mode .pollutant-value,
+body.light-mode .current-time {
+    color: #1a1a1a !important;
+}
+
+body.light-mode .city-country {
+    color: #555 !important;
+}
+
+body.light-mode .info-card-title,
+body.light-mode .pollutant-name {
+    color: #666 !important;
+}
+
 /* Light mode text readability improvements */
 body.light-mode .city-country,
 body.light-mode .info-card-unit,
