@@ -291,6 +291,11 @@ function setInfoPanelMode(mode) {
     }
 
     if (mode === 'forecast') {
+        // Hide other sections; show only 3-day forecast
+        if (city) city.classList.add('hidden');
+        if (weather) weather.classList.add('hidden');
+        if (pollutants) pollutants.classList.add('hidden');
+        if (lastUpdated) lastUpdated.classList.add('hidden');
         // Scroll to forecast
         if (forecast) {
             setTimeout(() => {
@@ -301,6 +306,11 @@ function setInfoPanelMode(mode) {
     }
 
     if (mode === 'weather') {
+        // Hide other sections; show only current weather
+        if (city) city.classList.add('hidden');
+        if (pollutants) pollutants.classList.add('hidden');
+        if (forecast) forecast.classList.add('hidden');
+        if (lastUpdated) lastUpdated.classList.add('hidden');
         // Scroll to weather section
         if (weather) {
             setTimeout(() => {
