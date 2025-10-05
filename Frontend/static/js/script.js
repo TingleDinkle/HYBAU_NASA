@@ -53,18 +53,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const isLightMode = savedTheme === 'light';
 
             if (isLightMode) {
-                window.mapTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap contributors',
+                window.mapTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
+                    subdomains: 'abcd',
                     noWrap: false,
-                    maxZoom: 19
-                });
+                    maxZoom: 8
+                })
             } else {
-                // Dark mode - using Stamen Toner Lite for a softer, more modern look
-                window.mapTileLayer = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
-                    attribution: '© Stadia Maps © OpenMapTiles © OpenStreetMap contributors',
-                    noWrap: false,
-                    maxZoom: 19
-                });
+                window.mapTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
+                    subdomains: 'abcd',
+                    maxZoom: 8
+                })
             }
 
             window.mapTileLayer.addTo(window.map);
@@ -424,18 +424,25 @@ function updateMapTiles() {
         
         if (isDarkMode) {
             // Dark mode map - using Stadia Maps Alidade Smooth Dark (modern, vibrant, less depressing)
-            window.mapTileLayer = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
-                attribution: '© Stadia Maps © OpenMapTiles © OpenStreetMap contributors',
+            window.mapTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
+                subdomains: 'abcd',
                 noWrap: false,
-                maxZoom: 19
-            });
+                maxZoom: 8
+            }).addTo(map);
+            // window.mapTileLayer = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
+            //     attribution: '© Stadia Maps © OpenMapTiles © OpenStreetMap contributors',
+            //     noWrap: false,
+            //     maxZoom: 8
+            // });
         } else {
             // Light mode map - using standard OpenStreetMap
-            window.mapTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors',
+            window.mapTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
+                subdomains: 'abcd',
                 noWrap: false,
-                maxZoom: 19
-            });
+                maxZoom: 8
+            })
         }
         
         window.mapTileLayer.addTo(window.map);
