@@ -13,6 +13,17 @@ def index():
     return render_template("index.html")
 
 
+import reverse_geocoder as rg
+import pycountry_convert as pc
+
+def get_continent_from_coords(lat, lon):
+    results = rg.search((lat, lon))  # Returns a list of dicts
+    country_code = results[0]['cc']
+    continent_code = pc.country_alpha2_to_continent_code(country_code)
+    continent_name = pc.convert_continent_code_to_continent_name(continent_code)
+    return continent_name
+
+
 @app.route("/click/<float:lat>/<float:lng>")
 def handle_click(lat, lng) -> tuple:
     # TODO: return the the JSON here. Like you use normal function and return str(something.json())
