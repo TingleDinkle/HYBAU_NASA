@@ -24,6 +24,21 @@ function updatePollutantsFromData(data) {
     }
 }
 
+function updateWeatherFromData(data) {
+    const pollutants = data.air_pollutant.hourly;
+    const units = data.air_pollutant.hourly_units; // get unit mapping from API
+
+    for (const key in POLLUTANT_NAME_MAP) {
+        if (pollutants[key] && pollutants[key].length > 0) {
+            const currentValue = pollutants[key][0]; // first (latest) value
+            const displayName = POLLUTANT_NAME_MAP[key];
+            const unit = units && units[key] ? units[key] : ''; // use unit from data
+
+            addOrUpdatePollutant(displayName, currentValue, unit);
+        }
+    }
+}
+
 function fetchDataAndUpdate(lat, lng) {
     const host = window.location.origin;
 
