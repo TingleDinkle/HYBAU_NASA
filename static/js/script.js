@@ -204,21 +204,23 @@ if (infoToggleBtn) {
     });
 }
 
-// Toggle Sidebar
+// Toggle Sidebar (guarded if removed)
 const sidebar = document.getElementById('leftSidebar');
 const toggleBtn = document.getElementById('toggleSidebar');
-const toggleIcon = toggleBtn.querySelector('i');
+const toggleIcon = toggleBtn ? toggleBtn.querySelector('i') : null;
 
-toggleBtn.addEventListener('click', () => {
-    sidebar.classList.toggle('collapsed');
-    toggleBtn.classList.toggle('collapsed');
-    
-    if (sidebar.classList.contains('collapsed')) {
-        toggleIcon.className = 'fas fa-chevron-right';
-    } else {
-        toggleIcon.className = 'fas fa-chevron-left';
-    }
-});
+if (sidebar && toggleBtn && toggleIcon) {
+    toggleBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('collapsed');
+        toggleBtn.classList.toggle('collapsed');
+        
+        if (sidebar.classList.contains('collapsed')) {
+            toggleIcon.className = 'fas fa-chevron-right';
+        } else {
+            toggleIcon.className = 'fas fa-chevron-left';
+        }
+    });
+}
 
 // Mode Switcher
 const modeBtns = document.querySelectorAll('.mode-btn');
