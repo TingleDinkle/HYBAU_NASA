@@ -90,4 +90,4 @@ def prediction(air, weather) -> tuple:
     return json_air, json_wea
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=8080, debug=True) #let FlaskK open a website with port 8080 - change based on the cloud or the user's server settings
