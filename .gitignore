@@ -7,3 +7,8 @@ Model/data/TEMPO_HCHO_L2_V04_20251004T222111Z_S012G09.nc
 Model/data/TEMPO_O3TOT_L2_V04_20251004T222111Z_S012G09.nc
 
 .vscode
+Model/__pycache__/model_MRXGBoost.cpython-313.pyc
+Model/__pycache__/model_model.cpython-313.pyc
+Model/data/openaq_location_4946811_measurments.csv
+Model/.cache.sqlite
+Backend/__pycache__/weather_request.cpython-313.pyc
