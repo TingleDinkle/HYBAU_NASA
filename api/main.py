@@ -7,5 +7,10 @@ def index():
     return render_template("index.html")
 
 
+@app.route("/click/<float:lat>/<float:lng>")
+def handle_click(lat, lng):
+    return
+
+
 if __name__ == '__main__':
     app.run(debug=True)
