@@ -9,19 +9,55 @@ const POLLUTANT_NAME_MAP = {
     sulphur_dioxide: "Sulfur Dioxide (SO₂)"
 };
 
+function calculateAQI(concentration, breakpoints) {
+    for (let i = 0; i < breakpoints.length; i++) {
+        const bp = breakpoints[i];
+        if (concentration >= bp.C_low && concentration <= bp.C_high) {
+            const { C_low, C_high, I_low, I_high } = bp;
+            return Math.round(((I_high - I_low) / (C_high - C_low)) * (concentration - C_low) + I_low);
+        }
+    }
+    return null;
+}
+
+const BREAKPOINTS = {
+    pm25: [
+        { C_low: 0.0, C_high: 12.0, I_low: 0, I_high: 50 },
+        { C_low: 12.1, C_high: 35.4, I_low: 51, I_high: 100 },
+        { C_low: 35.5, C_high: 55.4, I_low: 101, I_high: 150 },
+        { C_low: 55.5, C_high: 150.4, I_low: 151, I_high: 200 },
+        { C_low: 150.5, C_high: 250.4, I_low: 201, I_high: 300 },
+        { C_low: 250.5, C_high: 350.4, I_low: 301, I_high: 400 },
+        { C_low: 350.5, C_high: 500.4, I_low: 401, I_high: 500 }
+    ]
+};
+
 function updatePollutantsFromData(data) {
     const pollutants = data.air_pollutant.hourly;
-    const units = data.air_pollutant.hourly_units; // get unit mapping from API
+    const units = data.air_pollutant.hourly_units;
+
+    let aqIndex = 0;
 
     for (const key in POLLUTANT_NAME_MAP) {
         if (pollutants[key] && pollutants[key].length > 0) {
-            const currentValue = pollutants[key][0]; // first (latest) value
+            const currentValue = pollutants[key][0];
             const displayName = POLLUTANT_NAME_MAP[key];
-            const unit = units && units[key] ? units[key] : ''; // use unit from data
+            const unit = units && units[key] ? units[key] : '';
 
             addOrUpdatePollutant(displayName, currentValue, unit);
+
+            // Calculate AQI if breakpoints are defined
+            if (BREAKPOINTS[key]) {
+                const aqi = calculateAQI(currentValue, BREAKPOINTS[key]);
+                if (aqi !== null && aqi > aqIndex) {
+                    aqIndex = aqi;
+                }
+            }
         }
     }
+
+    console.log("Overall AQI:", aqIndex);
+
 }
 
 function updateWeatherFromData(data) {
@@ -671,100 +707,107 @@ function createLegend({
     maxValue = 250,
     thresholds = [15, 35, 55, 110, 250],
     categories = ['Good', 'Moderate', 'Unhealthy for Sensitive Groups', 'Unhealthy', 'Very Unhealthy'],
-    colors = ['#00e400', '#ffff00', '#ff7e00', '#ff0000', '#8f3f97']
+    colors = ['#00e400', '#ffff00', '#ff7e00', '#ff0000', '#8f3f97'],
+    availablePollutants = []
 }) {
-    // Select DOM elements
     const legend = document.querySelector(selector);
     if (!legend) {
-    console.warn(`Legend container ${selector} not found.`);
-    return;
+        console.warn(`Legend container ${selector} not found.`);
+        return;
     }
 
-    // Create inner elements dynamically
+    // Create dropdown options
+    const optionsHTML = availablePollutants.map(p => 
+        `<option value="${p.key}" ${p.key === title.toLowerCase() ? 'selected' : ''}>${p.label}</option>`
+    ).join('');
+
     legend.innerHTML = `
-    <div class="legend-title">${title} (${unit})</div>
-    <div class="legend-scale" id="legend-scale"></div>
-    <div id="legend-tooltip"></div>
-    <div class="legend-labels">
-        ${thresholds.map(v => `<span>${v}</span>`).join('')}
-        <span>${maxValue}+</span>
-    </div>
+        <div class="legend-title">
+            <label for="pollutant-select">Pollutant:</label>
+            <select id="pollutant-select">${optionsHTML}</select>
+            <span>(${unit})</span>
+        </div>
+        <div class="legend-scale" id="legend-scale"></div>
+        <div id="legend-tooltip"></div>
+        <div class="legend-labels">
+            ${thresholds.map(v => `<span>${v}</span>`).join('')}
+            <span>${maxValue}+</span>
+        </div>
     `;
 
     const legendScale = legend.querySelector('#legend-scale');
     const tooltip = legend.querySelector('#legend-tooltip');
 
-    // Build gradient background
     const gradientStops = colors.map((c, i) => `${c} ${(i / (colors.length - 1)) * 100}%`).join(', ');
     legendScale.style.background = `linear-gradient(90deg, ${gradientStops})`;
 
-    // Function to get category from value
     function getCategory(val) {
-    for (let i = 0; i < thresholds.length; i++) {
-        if (val <= thresholds[i]) return categories[i];
-    }
-    return categories[categories.length - 1];
+        for (let i = 0; i < thresholds.length; i++) {
+            if (val <= thresholds[i]) return categories[i];
+        }
+        return categories[categories.length - 1];
     }
 
-    // Mouse hover interaction
     legendScale.addEventListener('mousemove', (e) => {
-    const scaleRect = legendScale.getBoundingClientRect();
-    const legendRect = legend.getBoundingClientRect();
-
-    const x = Math.max(0, Math.min(scaleRect.width, e.clientX - scaleRect.left));
-    const frac = x / scaleRect.width;
-    const est = Math.round(frac * maxValue);
-
-    const label = getCategory(est);
-
-    // Tooltip text — status only
-    tooltip.innerHTML = label;
-
-    // Show tooltip
-    tooltip.style.display = 'block';
-    const leftInsideLegend = e.clientX - legendRect.left;
-    tooltip.style.left = `${leftInsideLegend}px`;
-
-    const scaleTopInsideLegend = scaleRect.top - legendRect.top;
-    const ttHeight = tooltip.offsetHeight || 24;
-    tooltip.style.top = `${scaleTopInsideLegend - ttHeight - 8}px`;
-
-    requestAnimationFrame(() => {
-        tooltip.style.opacity = '1';
-    });
+        const scaleRect = legendScale.getBoundingClientRect();
+        const legendRect = legend.getBoundingClientRect();
+        const x = Math.max(0, Math.min(scaleRect.width, e.clientX - scaleRect.left));
+        const frac = x / scaleRect.width;
+        const est = Math.round(frac * maxValue);
+        const label = getCategory(est);
+        tooltip.innerHTML = label;
+        tooltip.style.display = 'block';
+        tooltip.style.left = `${e.clientX - legendRect.left}px`;
+        tooltip.style.top = `${scaleRect.top - legendRect.top - (tooltip.offsetHeight || 24) - 8}px`;
+        requestAnimationFrame(() => {
+            tooltip.style.opacity = '1';
+        });
     });
 
     legendScale.addEventListener('mouseleave', () => {
-    tooltip.style.opacity = '0';
-    setTimeout(() => { tooltip.style.display = 'none'; }, 160);
+        tooltip.style.opacity = '0';
+        setTimeout(() => { tooltip.style.display = 'none'; }, 160);
     });
 
-    // Touch support
     legendScale.addEventListener('touchstart', (e) => {
-    const touch = e.touches[0];
-    if (touch) {
-        legendScale.dispatchEvent(new MouseEvent('mousemove', {
-        clientX: touch.clientX,
-        clientY: touch.clientY,
-        bubbles: true
-        }));
-    }
+        const touch = e.touches[0];
+        if (touch) {
+            legendScale.dispatchEvent(new MouseEvent('mousemove', {
+                clientX: touch.clientX,
+                clientY: touch.clientY,
+                bubbles: true
+            }));
+        }
     }, { passive: true });
 
     legendScale.addEventListener('touchmove', (e) => {
-    const touch = e.touches[0];
-    if (touch) {
-        legendScale.dispatchEvent(new MouseEvent('mousemove', {
-        clientX: touch.clientX,
-        clientY: touch.clientY,
-        bubbles: true
-        }));
-    }
+        const touch = e.touches[0];
+        if (touch) {
+            legendScale.dispatchEvent(new MouseEvent('mousemove', {
+                clientX: touch.clientX,
+                clientY: touch.clientY,
+                bubbles: true
+            }));
+        }
     }, { passive: true });
 
     legendScale.addEventListener('touchend', () => {
-    tooltip.style.opacity = '0';
-    setTimeout(() => { tooltip.style.display = 'none'; }, 160);
+        tooltip.style.opacity = '0';
+        setTimeout(() => { tooltip.style.display = 'none'; }, 160);
+    });
+
+    // Handle dropdown change
+    const select = legend.querySelector('#pollutant-select');
+    select.addEventListener('change', (e) => {
+        const selectedKey = e.target.value;
+        const config = LEGEND_CONFIGS[selectedKey];
+        if (config) {
+            createLegend({
+                selector,
+                ...config,
+                availablePollutants
+            });
+        }
     });
 }
 

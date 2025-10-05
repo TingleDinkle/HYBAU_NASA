@@ -46,29 +46,37 @@
 
     <!-- Right Controls Panel -->
     <div class="right-panel">
-            <button class="control-btn tooltip" data-tooltip="Zoom In">
-                <i class="fas fa-plus"></i>
-            </button>
-            <button class="control-btn tooltip" data-tooltip="Zoom Out">
-                <i class="fas fa-minus"></i>
-            </button>
-            <div class="divider"></div>
-            <button class="control-btn tooltip" data-tooltip="My Location">
-                <i class="fas fa-crosshairs"></i>
-            </button>
-            <button class="control-btn tooltip" data-tooltip="Fullscreen">
-                <i class="fas fa-expand"></i>
-            </button>
-            <div class="divider"></div>
-            <button class="control-btn tooltip" data-tooltip="Toggle Theme" id="theme-toggle">
-                <i class="fas fa-moon"></i>
-            </button>
-            <button class="control-btn tooltip" data-tooltip="Info" id="info-toggle">
-                <i class="fas fa-info"></i>
-            </button>
+        <button class="control-btn tooltip" data-tooltip="Zoom In">
+            <i class="fas fa-plus"></i>
+        </button>
+        <button class="control-btn tooltip" data-tooltip="Zoom Out">
+            <i class="fas fa-minus"></i>
+        </button>
+        <div class="divider"></div>
+        <button class="control-btn tooltip" data-tooltip="My Location">
+            <i class="fas fa-crosshairs"></i>
+        </button>
+        <button class="control-btn tooltip" data-tooltip="Fullscreen">
+            <i class="fas fa-expand"></i>
+        </button>
+        <div class="divider"></div>
+        <button class="control-btn tooltip" data-tooltip="Toggle Theme" id="theme-toggle">
+            <i class="fas fa-moon"></i>
+        </button>
+        <button class="control-btn tooltip" data-tooltip="Info" id="info-toggle">
+            <i class="fas fa-info"></i>
+        </button>
     </div>
 
     <!-- Legend -->
+    <select id="pollutant-picker">
+        <option value="pm25">PM2.5</option>
+        <option value="pm10">PM10</option>
+        <option value="co">CO</option>
+        <option value="no2">NO₂</option>
+        <option value="o3">O₃</option>
+        <option value="so2">SO₂</option>
+    </select>
     <div class="legend" id="legend"></div>
 
     <!-- Right Info Panel -->
@@ -210,15 +218,72 @@
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="../static/js/script.js"></script>
     <script>
+        const LEGEND_CONFIGS = {
+            pm25: {
+                title: 'PM2.5',
+                unit: 'μg/m³',
+                maxValue: 250,
+                thresholds: [15, 35, 55, 110, 250],
+                categories: ['Good', 'Moderate', 'Unhealthy for Sensitive Groups', 'Unhealthy', 'Very Unhealthy'],
+                colors: ['#00e400', '#ffff00', '#ff7e00', '#ff0000', '#8f3f97']
+            },
+            pm10: {
+                title: 'PM10',
+                unit: 'μg/m³',
+                maxValue: 420,
+                thresholds: [50, 100, 250, 350, 420],
+                categories: ['Good', 'Moderate', 'Unhealthy for Sensitive Groups', 'Unhealthy', 'Very Unhealthy'],
+                colors: ['#00e400', '#ffff00', '#ff7e00', '#ff0000', '#8f3f97']
+            },
+            co: {
+                title: 'CO',
+                unit: 'ppm',
+                maxValue: 30,
+                thresholds: [4.4, 9.4, 12.4, 15.4, 30],
+                categories: ['Good', 'Moderate', 'Unhealthy for Sensitive Groups', 'Unhealthy', 'Very Unhealthy'],
+                colors: ['#00e400', '#ffff00', '#ff7e00', '#ff0000', '#8f3f97']
+            },
+            no2: {
+                title: 'NO2',
+                unit: 'ppb',
+                maxValue: 400,
+                thresholds: [53, 100, 360, 649, 1249],
+                categories: ['Good', 'Moderate', 'Unhealthy for Sensitive Groups', 'Unhealthy', 'Very Unhealthy'],
+                colors: ['#00e400', '#ffff00', '#ff7e00', '#ff0000', '#8f3f97']
+            },
+            o3: {
+                title: 'O3',
+                unit: 'ppb',
+                maxValue: 300,
+                thresholds: [54, 70, 85, 105, 200],
+                categories: ['Good', 'Moderate', 'Unhealthy for Sensitive Groups', 'Unhealthy', 'Very Unhealthy'],
+                colors: ['#00e400', '#ffff00', '#ff7e00', '#ff0000', '#8f3f97']
+            },
+            so2: {
+                title: 'SO2',
+                unit: 'ppb',
+                maxValue: 800,
+                thresholds: [35, 75, 185, 304, 604],
+                categories: ['Good', 'Moderate', 'Unhealthy for Sensitive Groups', 'Unhealthy', 'Very Unhealthy'],
+                colors: ['#00e400', '#ffff00', '#ff7e00', '#ff0000', '#8f3f97']
+            }
+        };
+
+        const availablePollutants = [
+            { key: 'pm25', label: 'PM2.5' },
+            { key: 'pm10', label: 'PM10' },
+            { key: 'co', label: 'CO' },
+            { key: 'no2', label: 'NO2' },
+            { key: 'o3', label: 'O3' },
+            { key: 'so2', label: 'SO2' }
+        ];
+
         createLegend({
-            selector: '.legend', 
-            title: 'PM2.5', 
-            unit: 'μg/m³',
-            maxValue: 250,
-            thresholds: [15, 35, 55, 110, 250],
-            categories: ['Good', 'Moderate', 'Unhealthy for Sensitive Groups', 'Unhealthy', 'Very Unhealthy'],
-            colors: ['#00e400', '#ffff00', '#ff7e00', '#ff0000', '#8f3f97']
+            selector: '.legend',
+            ...LEGEND_CONFIGS.pm25,
+            availablePollutants
         });
+
     </script>
 </body>
 </html>
