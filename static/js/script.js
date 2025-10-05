@@ -362,8 +362,8 @@ function getCurrentLocation() {
                 
                 // Get the map instance (assuming it's stored globally)
                 if (window.map) {
-                    map.invalidateSize();
-                    map.flyTo([userLat, userLng], map.getZoom(), { animate: false, duration: 0 });
+                    window.map.invalidateSize();
+                    window.map.flyTo([userLat, userLng], window.map.getZoom(), { animate: false, duration: 0 });
                     
                     // Add or update user location marker using the new system
                     addUserLocationMarker();
@@ -384,40 +384,44 @@ function getCurrentLocation() {
     }
 }
 
-// Time Slider
+// Time Slider (guarded; may not exist after sidebar removal)
 const timeSlider = document.querySelector('.time-slider');
 const currentTime = document.querySelector('.current-time');
 
-timeSlider.addEventListener('input', (e) => {
-    const hours = e.target.value;
-    if (hours == 0) {
-        currentTime.textContent = 'Now';
-    } else {
-        currentTime.textContent = `+${hours}h`;
-    }
-});
+if (timeSlider && currentTime) {
+    timeSlider.addEventListener('input', (e) => {
+        const hours = e.target.value;
+        if (hours == 0) {
+            currentTime.textContent = 'Now';
+        } else {
+            currentTime.textContent = `+${hours}h`;
+        }
+    });
+}
 
 // Play Button Animation
 const playBtn = document.querySelector('.time-btn:nth-child(2)');
 let isPlaying = false;
 
-playBtn.addEventListener('click', () => {
-    isPlaying = !isPlaying;
-    const icon = playBtn.querySelector('i');
-    
-    if (isPlaying) {
-        icon.className = 'fas fa-pause';
-        // Start animation
-        animateTimeline();
-    } else {
-        icon.className = 'fas fa-play';
-    }
-});
+if (playBtn && timeSlider) {
+    playBtn.addEventListener('click', () => {
+        isPlaying = !isPlaying;
+        const icon = playBtn.querySelector('i');
+        
+        if (isPlaying) {
+            icon.className = 'fas fa-pause';
+            // Start animation
+            animateTimeline();
+        } else {
+            icon.className = 'fas fa-play';
+        }
+    });
+}
 
 function animateTimeline() {
-    if (!isPlaying) return;
+    if (!isPlaying || !timeSlider) return;
     
-    let currentValue = parseInt(timeSlider.value);
+    let currentValue = parseInt(timeSlider.value || '0');
     if (currentValue >= 72) {
         currentValue = 0;
     } else {
@@ -451,9 +455,10 @@ fullscreenBtn.addEventListener('click', () => {
     }
 });
 
-// Simulate real-time updates
+// Simulate real-time updates (guarded for presence)
 setInterval(() => {
-    const lastUpdated = document.querySelector('.info-details p');
+    const lastUpdated = document.querySelector('.last-updated');
+    if (!lastUpdated) return;
     const minutes = Math.floor(Math.random() * 5) + 1;
     lastUpdated.textContent = `Last updated: ${minutes} min ago`;
 }, 30000);
@@ -527,7 +532,7 @@ function updateMapTiles() {
                 subdomains: 'abcd',
                 noWrap: false,
                 maxZoom: 8
-            }).addTo(map);
+            }).addTo(window.map);
             // window.mapTileLayer = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
             //     attribution: '© Stadia Maps © OpenMapTiles © OpenStreetMap contributors',
             //     noWrap: false,
@@ -684,26 +689,22 @@ function createLegend({
 }
 
 function updateWeather(title, value, unit, detail) {
-    // Find the container (e.g. ".info-card" or parent element)
-    const container = document.getElementById('forecase-section');
-    if (!container) return console.error("Info card container not found:", containerSelector);
-
-    // If the card exists, update it
-    let card = container.querySelector('.info-card');
-    if (!card) {
-        card = document.createElement('div');
-        card.className = 'info-card';
-        container.appendChild(card);
+    const weatherPanel = document.getElementById('weather-section');
+    if (!weatherPanel) {
+        console.error('weather-section not found');
+        return;
     }
-
-    // Build or update inner HTML
-    card.innerHTML = `
-        <div class="info-card-title">${title}</div>
-        <div class="info-card-value">
-            ${value}<span class="info-card-unit">${unit || ''}</span>
-        </div>
-        <div class="info-card-detail">${detail || ''}</div>
-    `;
+    const card = weatherPanel.querySelector('.info-card');
+    if (!card) {
+        console.error('No .info-card found inside weather-section');
+        return;
+    }
+    const titleEl = card.querySelector('.info-card-title');
+    const valueEl = card.querySelector('.info-card-value');
+    const detailEl = card.querySelector('.info-card-detail');
+    if (titleEl) titleEl.textContent = title;
+    if (valueEl) valueEl.innerHTML = `${value}<span class="info-card-unit">${unit || ''}</span>`;
+    if (detailEl) detailEl.textContent = detail || '';
 }
 
 function addOrUpdatePollutant(name, value, unit) {
