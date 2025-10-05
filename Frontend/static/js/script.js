@@ -277,7 +277,8 @@ function getCurrentLocation() {
                 
                 // Get the map instance (assuming it's stored globally)
                 if (window.map) {
-                    window.map.setView([userLat, userLng], 8);
+                    map.invalidateSize();
+                    map.flyTo([userLat, userLng], map.getZoom(), { animate: false, duration: 0 });
                     
                     // Add or update user location marker using the new system
                     addUserLocationMarker();
