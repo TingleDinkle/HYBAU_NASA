@@ -40,7 +40,7 @@ function updatePollutantsFromData(data) {
 
     for (const key in POLLUTANT_NAME_MAP) {
         if (pollutants[key] && pollutants[key].length > 0) {
-            const currentValue = pollutants[key][0];
+            const currentValue = pollutants[key][pollutants[key].length - 1];
             const displayName = POLLUTANT_NAME_MAP[key];
             const unit = units && units[key] ? units[key] : '';
 
@@ -71,7 +71,7 @@ function updateWeatherFromData(data) {
     const w = data.weather.hourly;
     const u = data.weather.hourly_units || {}; // all units come from here
 
-    const first = (arr) => (arr[0]);
+    const first = (arr) => (arr[arr.length - 1]);
 
     // Get values directly
     const temperature = first(w.temperature_2m);
@@ -1108,3 +1108,522 @@ if (themeToggle) {
         setTimeout(updateSearchResultsTheme, 100);
     });
 }
+
+// Add 72h Forecast Sliders to Air Quality and Weather Tabs
+// Add this to your script.js file
+
+// Global variables to store forecast data
+let forecastAirData = null;
+let forecastWeatherData = null;
+let currentAirForecastHour = 0;
+let currentWeatherForecastHour = 0;
+
+// Store current (present) data
+let currentAirData = null;
+let currentWeatherData = null;
+
+// Function to update forecast data from API response
+function updateForecastDataWithSliders(data) {
+    console.log('Updating forecast data with sliders:', data);
+    
+    // Store current data
+    if (data.air_pollutant) {
+        currentAirData = data.air_pollutant;
+    }
+    if (data.weather) {
+        currentWeatherData = data.weather;
+    }
+    
+    // Store forecast data
+    if (data.prediction_air) {
+        forecastAirData = typeof data.prediction_air === 'string' 
+            ? JSON.parse(data.prediction_air) 
+            : data.prediction_air;
+        console.log('Forecast Air Data loaded');
+    }
+    
+    if (data.prediction_weather) {
+        forecastWeatherData = typeof data.prediction_weather === 'string' 
+            ? JSON.parse(data.prediction_weather) 
+            : data.prediction_weather;
+        console.log('Forecast Weather Data loaded');
+    }
+    
+    // Add sliders to both tabs
+    if (forecastAirData) {
+        addAirQualitySlider();
+    }
+    if (forecastWeatherData) {
+        addWeatherSlider();
+    }
+}
+
+// Add slider to Air Quality section
+function addAirQualitySlider() {
+    const pollutantsSection = document.getElementById('pollutants-section');
+    if (!pollutantsSection) return;
+    
+    // Check if slider already exists
+    let sliderContainer = document.getElementById('air-forecast-slider-container');
+    
+    if (!sliderContainer) {
+        // Create slider container
+        sliderContainer = document.createElement('div');
+        sliderContainer.id = 'air-forecast-slider-container';
+        sliderContainer.style.cssText = 'margin-top: 25px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.1);';
+        
+        sliderContainer.innerHTML = `
+            <h3 style="font-size: 1rem; margin-bottom: 15px; color: rgba(255, 255, 255, 0.8);">
+                📊 72-Hour Forecast
+            </h3>
+            
+            <div class="time-control">
+                <div class="time-display">
+                    <span class="current-time" id="air-forecast-time">Current</span>
+                    <span class="forecast-badge" id="air-forecast-hours">Now</span>
+                </div>
+                <input type="range" class="time-slider" id="air-forecast-slider" 
+                       min="0" max="72" value="0" step="1">
+                <div class="time-controls">
+                    <button class="time-btn" id="air-forecast-prev">
+                        <i class="fas fa-step-backward"></i>
+                    </button>
+                    <button class="time-btn" id="air-forecast-play">
+                        <i class="fas fa-play"></i>
+                    </button>
+                    <button class="time-btn" id="air-forecast-next">
+                        <i class="fas fa-step-forward"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="info-grid" id="air-forecast-data" style="margin-top: 15px;">
+                <!-- Forecast data will be shown here -->
+            </div>
+        `;
+        
+        pollutantsSection.appendChild(sliderContainer);
+    }
+    
+    // Setup controls
+    setupAirForecastControls();
+    updateAirForecastDisplay(0); // Show current data initially
+}
+
+// Add slider to Weather section
+function addWeatherSlider() {
+    const weatherSection = document.getElementById('weather-section');
+    if (!weatherSection) return;
+    
+    // Check if slider already exists
+    let sliderContainer = document.getElementById('weather-forecast-slider-container');
+    
+    if (!sliderContainer) {
+        // Create slider container
+        sliderContainer = document.createElement('div');
+        sliderContainer.id = 'weather-forecast-slider-container';
+        sliderContainer.style.cssText = 'margin-top: 25px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.1);';
+        
+        sliderContainer.innerHTML = `
+            <h3 style="font-size: 1rem; margin-bottom: 15px; color: rgba(255, 255, 255, 0.8);">
+                📊 72-Hour Forecast
+            </h3>
+            
+            <div class="time-control">
+                <div class="time-display">
+                    <span class="current-time" id="weather-forecast-time">Current</span>
+                    <span class="forecast-badge" id="weather-forecast-hours">Now</span>
+                </div>
+                <input type="range" class="time-slider" id="weather-forecast-slider" 
+                       min="0" max="72" value="0" step="1">
+                <div class="time-controls">
+                    <button class="time-btn" id="weather-forecast-prev">
+                        <i class="fas fa-step-backward"></i>
+                    </button>
+                    <button class="time-btn" id="weather-forecast-play">
+                        <i class="fas fa-play"></i>
+                    </button>
+                    <button class="time-btn" id="weather-forecast-next">
+                        <i class="fas fa-step-forward"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="info-grid" id="weather-forecast-data" style="margin-top: 15px;">
+                <!-- Forecast data will be shown here -->
+            </div>
+        `;
+        
+        weatherSection.appendChild(sliderContainer);
+    }
+    
+    // Setup controls
+    setupWeatherForecastControls();
+    updateWeatherForecastDisplay(0); // Show current data initially
+}
+
+// Setup Air Quality forecast controls
+function setupAirForecastControls() {
+    const slider = document.getElementById('air-forecast-slider');
+    const playBtn = document.getElementById('air-forecast-play');
+    const prevBtn = document.getElementById('air-forecast-prev');
+    const nextBtn = document.getElementById('air-forecast-next');
+    
+    let isPlaying = false;
+    let playInterval = null;
+    
+    if (slider) {
+        slider.addEventListener('input', (e) => {
+            currentAirForecastHour = parseInt(e.target.value);
+            updateAirForecastDisplay(currentAirForecastHour);
+        });
+    }
+    
+    if (playBtn) {
+        playBtn.addEventListener('click', () => {
+            isPlaying = !isPlaying;
+            const icon = playBtn.querySelector('i');
+            
+            if (isPlaying) {
+                icon.className = 'fas fa-pause';
+                playInterval = setInterval(() => {
+                    if (currentAirForecastHour >= 72) {
+                        currentAirForecastHour = 0;
+                    } else {
+                        currentAirForecastHour++;
+                    }
+                    slider.value = currentAirForecastHour;
+                    updateAirForecastDisplay(currentAirForecastHour);
+                }, 500);
+            } else {
+                icon.className = 'fas fa-play';
+                clearInterval(playInterval);
+            }
+        });
+    }
+    
+    if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+            if (currentAirForecastHour > 0) {
+                currentAirForecastHour--;
+                slider.value = currentAirForecastHour;
+                updateAirForecastDisplay(currentAirForecastHour);
+            }
+        });
+    }
+    
+    if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+            if (currentAirForecastHour < 72) {
+                currentAirForecastHour++;
+                slider.value = currentAirForecastHour;
+                updateAirForecastDisplay(currentAirForecastHour);
+            }
+        });
+    }
+}
+
+// Setup Weather forecast controls
+function setupWeatherForecastControls() {
+    const slider = document.getElementById('weather-forecast-slider');
+    const playBtn = document.getElementById('weather-forecast-play');
+    const prevBtn = document.getElementById('weather-forecast-prev');
+    const nextBtn = document.getElementById('weather-forecast-next');
+    
+    let isPlaying = false;
+    let playInterval = null;
+    
+    if (slider) {
+        slider.addEventListener('input', (e) => {
+            currentWeatherForecastHour = parseInt(e.target.value);
+            updateWeatherForecastDisplay(currentWeatherForecastHour);
+        });
+    }
+    
+    if (playBtn) {
+        playBtn.addEventListener('click', () => {
+            isPlaying = !isPlaying;
+            const icon = playBtn.querySelector('i');
+            
+            if (isPlaying) {
+                icon.className = 'fas fa-pause';
+                playInterval = setInterval(() => {
+                    if (currentWeatherForecastHour >= 72) {
+                        currentWeatherForecastHour = 0;
+                    } else {
+                        currentWeatherForecastHour++;
+                    }
+                    slider.value = currentWeatherForecastHour;
+                    updateWeatherForecastDisplay(currentWeatherForecastHour);
+                }, 500);
+            } else {
+                icon.className = 'fas fa-play';
+                clearInterval(playInterval);
+            }
+        });
+    }
+    
+    if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+            if (currentWeatherForecastHour > 0) {
+                currentWeatherForecastHour--;
+                slider.value = currentWeatherForecastHour;
+                updateWeatherForecastDisplay(currentWeatherForecastHour);
+            }
+        });
+    }
+    
+    if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+            if (currentWeatherForecastHour < 72) {
+                currentWeatherForecastHour++;
+                slider.value = currentWeatherForecastHour;
+                updateWeatherForecastDisplay(currentWeatherForecastHour);
+            }
+        });
+    }
+}
+
+// Update Air Quality forecast display
+function updateAirForecastDisplay(hourIndex) {
+    const timeDisplay = document.getElementById('air-forecast-time');
+    const hoursDisplay = document.getElementById('air-forecast-hours');
+    const dataGrid = document.getElementById('air-forecast-data');
+    
+    if (!dataGrid) return;
+    
+    // Update time display
+    if (hourIndex === 0) {
+        if (timeDisplay) timeDisplay.textContent = 'Current';
+        if (hoursDisplay) hoursDisplay.textContent = 'Now';
+    } else {
+        const futureDate = new Date();
+        futureDate.setHours(futureDate.getHours() + hourIndex);
+        
+        const dateStr = futureDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const timeStr = futureDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+        
+        if (timeDisplay) timeDisplay.textContent = `${dateStr} ${timeStr}`;
+        if (hoursDisplay) hoursDisplay.textContent = `+${hourIndex}h`;
+    }
+    
+    // Get values (current or forecast)
+    const getValue = (key) => {
+        if (hourIndex === 0 && currentAirData && currentAirData.hourly && currentAirData.hourly[key]) {
+            // Use current data
+            return currentAirData.hourly[key][currentAirData.hourly[key].length - 1];
+        } else if (forecastAirData && forecastAirData[key]) {
+            // Use forecast data
+            const values = Object.values(forecastAirData[key]);
+            return values[hourIndex - 1] !== undefined ? values[hourIndex - 1] : '--';
+        }
+        return '--';
+    };
+    
+    const pm25 = getValue('pm2_5');
+    const pm10 = getValue('pm10');
+    const co = getValue('carbon_monoxide');
+    const no2 = getValue('nitrogen_dioxide');
+    const o3 = getValue('ozone');
+    const so2 = getValue('sulphur_dioxide');
+    
+    dataGrid.innerHTML = `
+        <div class="info-card">
+            <div class="info-card-title">PM2.5</div>
+            <div class="info-card-value">
+                ${typeof pm25 === 'number' ? pm25.toFixed(1) : pm25}
+                <span class="info-card-unit">μg/m³</span>
+            </div>
+        </div>
+        
+        <div class="info-card">
+            <div class="info-card-title">PM10</div>
+            <div class="info-card-value">
+                ${typeof pm10 === 'number' ? pm10.toFixed(1) : pm10}
+                <span class="info-card-unit">μg/m³</span>
+            </div>
+        </div>
+        
+        <div class="info-card">
+            <div class="info-card-title">CO</div>
+            <div class="info-card-value">
+                ${typeof co === 'number' ? co.toFixed(0) : co}
+                <span class="info-card-unit">μg/m³</span>
+            </div>
+        </div>
+        
+        <div class="info-card">
+            <div class="info-card-title">NO₂</div>
+            <div class="info-card-value">
+                ${typeof no2 === 'number' ? no2.toFixed(1) : no2}
+                <span class="info-card-unit">μg/m³</span>
+            </div>
+        </div>
+        
+        <div class="info-card">
+            <div class="info-card-title">O₃</div>
+            <div class="info-card-value">
+                ${typeof o3 === 'number' ? o3.toFixed(1) : o3}
+                <span class="info-card-unit">μg/m³</span>
+            </div>
+        </div>
+        
+        <div class="info-card">
+            <div class="info-card-title">SO₂</div>
+            <div class="info-card-value">
+                ${typeof so2 === 'number' ? so2.toFixed(1) : so2}
+                <span class="info-card-unit">μg/m³</span>
+            </div>
+        </div>
+    `;
+}
+
+// Update Weather forecast display
+function updateWeatherForecastDisplay(hourIndex) {
+    const timeDisplay = document.getElementById('weather-forecast-time');
+    const hoursDisplay = document.getElementById('weather-forecast-hours');
+    const dataGrid = document.getElementById('weather-forecast-data');
+    
+    if (!dataGrid) return;
+    
+    // Update time display
+    if (hourIndex === 0) {
+        if (timeDisplay) timeDisplay.textContent = 'Current';
+        if (hoursDisplay) hoursDisplay.textContent = 'Now';
+    } else {
+        const futureDate = new Date();
+        futureDate.setHours(futureDate.getHours() + hourIndex);
+        
+        const dateStr = futureDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const timeStr = futureDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+        
+        if (timeDisplay) timeDisplay.textContent = `${dateStr} ${timeStr}`;
+        if (hoursDisplay) hoursDisplay.textContent = `+${hourIndex}h`;
+    }
+    
+    // Get values (current or forecast)
+    const getValue = (key) => {
+        if (hourIndex === 0 && currentWeatherData && currentWeatherData.hourly && currentWeatherData.hourly[key]) {
+            // Use current data
+            return currentWeatherData.hourly[key][currentWeatherData.hourly[key].length - 1];
+        } else if (forecastWeatherData && forecastWeatherData[key]) {
+            // Use forecast data
+            const values = Object.values(forecastWeatherData[key]);
+            return values[hourIndex - 1] !== undefined ? values[hourIndex - 1] : '--';
+        }
+        return '--';
+    };
+    
+    const temp = getValue('temperature_2m');
+    const humidity = getValue('relative_humidity_2m');
+    const windSpeed = getValue('wind_speed_10m');
+    const windDir = getValue('wind_direction_10m');
+    const precipitation = getValue('precipitation');
+    const cloudCover = getValue('cloud_cover');
+    const pressure = getValue('surface_pressure');
+    
+    dataGrid.innerHTML = `
+        <div class="info-card">
+            <div class="info-card-title">🌡️ Temperature</div>
+            <div class="info-card-value">
+                ${typeof temp === 'number' ? temp.toFixed(1) : temp}
+                <span class="info-card-unit">°C</span>
+            </div>
+            <div class="info-card-detail">
+                ${typeof temp === 'number' ? `Feels like ${(temp + 2).toFixed(1)}°C` : 'N/A'}
+            </div>
+        </div>
+        
+        <div class="info-card">
+            <div class="info-card-title">💧 Humidity</div>
+            <div class="info-card-value">
+                ${typeof humidity === 'number' ? humidity.toFixed(0) : humidity}
+                <span class="info-card-unit">%</span>
+            </div>
+            <div class="info-card-detail">
+                ${typeof humidity === 'number' && typeof temp === 'number' 
+                    ? `Dew point ${((humidity / 100) * temp).toFixed(1)}°C` 
+                    : 'N/A'}
+            </div>
+        </div>
+        
+        <div class="info-card">
+            <div class="info-card-title">💨 Wind Speed</div>
+            <div class="info-card-value">
+                ${typeof windSpeed === 'number' ? windSpeed.toFixed(1) : windSpeed}
+                <span class="info-card-unit">km/h</span>
+            </div>
+            <div class="info-card-detail">
+                Direction: ${typeof windDir === 'number' ? windDir.toFixed(0) : windDir}°
+            </div>
+        </div>
+        
+        <div class="info-card">
+            <div class="info-card-title">🌧️ Precipitation</div>
+            <div class="info-card-value">
+                ${typeof precipitation === 'number' ? precipitation.toFixed(1) : precipitation}
+                <span class="info-card-unit">mm</span>
+            </div>
+            <div class="info-card-detail">
+                Cloud: ${typeof cloudCover === 'number' ? cloudCover.toFixed(0) : cloudCover}%
+            </div>
+        </div>
+        
+        <div class="info-card">
+            <div class="info-card-title">☁️ Cloud Cover</div>
+            <div class="info-card-value">
+                ${typeof cloudCover === 'number' ? cloudCover.toFixed(0) : cloudCover}
+                <span class="info-card-unit">%</span>
+            </div>
+            <div class="info-card-detail">
+                ${typeof cloudCover === 'number' 
+                    ? (cloudCover > 80 ? 'Mostly cloudy' : 'Partly cloudy') 
+                    : 'N/A'}
+            </div>
+        </div>
+        
+        <div class="info-card">
+            <div class="info-card-title">🧭 Pressure</div>
+            <div class="info-card-value">
+                ${typeof pressure === 'number' ? pressure.toFixed(0) : pressure}
+                <span class="info-card-unit">hPa</span>
+            </div>
+            <div class="info-card-detail">
+                ${typeof pressure === 'number' 
+                    ? (pressure > 1013 ? 'High pressure' : 'Low pressure') 
+                    : 'N/A'}
+            </div>
+        </div>
+    `;
+}
+
+// Modified fetchDataAndUpdate to include slider updates
+function fetchDataAndUpdateWithSliders(lat, lng) {
+    const host = window.location.origin;
+    const url = `${host}/click/${lat}/${lng}`;
+
+    fetch(url)
+        .then(res => {
+            if (!res.ok) throw new Error("Request failed: " + res.status);
+            return res.json();
+        })
+        .then(data => {
+            console.log('API Response:', data);
+            
+            // Update current data
+            if (typeof updatePollutantsFromData === 'function') {
+                updatePollutantsFromData(data);
+            }
+            if (typeof updateWeatherFromData === 'function') {
+                updateWeatherFromData(data);
+            }
+            
+            // Update forecast sliders
+            updateForecastDataWithSliders(data);
+        })
+        .catch(err => console.error('Fetch error:', err));
+}
+
+// Override fetchDataAndUpdate
+window.fetchDataAndUpdate = fetchDataAndUpdateWithSliders;
+fetchDataAndUpdate = fetchDataAndUpdateWithSliders
