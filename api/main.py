@@ -24,13 +24,13 @@ def get_continent_from_coords(lat, lon):
     return continent_name
 
 
-@app.route("/click/<float:lat>/<float:lng>")
+@app.route("/click/<path:lat>/<path:lng>")
 def handle_click(lat, lng) -> tuple:
-    # TODO: return the the JSON here. Like you use normal function and return str(something.json())
+    lat = float(lat)
+    lng = float(lng)
 
     air, weather = main_data(lat, lng)   
     pre_air, pre_wea = prediction(air, weather)
-
     
     return jsonify({'air_pollutant': air, 'weather': weather, 'prediction_air': pre_air, 'prediction_weather': pre_wea})
 
