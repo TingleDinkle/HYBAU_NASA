@@ -28,23 +28,6 @@ def weather_meteo(lat, lon, days=15, timezone="auto"):
     recall.raise_for_status()
     return recall.json()
 
-if __name__ == "__main__":
-#    latitude, longtitude = 21.0278, 105.8342 #Change this later to match with frontend
-#    data = weather_meteo(latitude, longtitude)
-# To access: data["hourly"][x] where x is in
-# ["temperature_2m", "wind_speed_10m", "wind_direction_10m",
-# "precipitation", "cloud_cover", "surface_pressure", "relative_humidity_2m"]
-"""
-    print(data["hourly_units"]) #Every hour is an entry, which makes it 144 entries in total
-    for x in ["temperature_2m",                       #temperature
-              "wind_speed_10m", "wind_direction_10m", #wind
-              "precipitation",                        #rain
-              "cloud_cover",                          #clouds
-              "surface_pressure",                     #pressure
-              "relative_humidity_2m"]:                #humidity
-        print(data["hourly"][x])
-"""
-
 
 
     
