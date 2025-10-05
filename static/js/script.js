@@ -25,18 +25,42 @@ function updatePollutantsFromData(data) {
 }
 
 function updateWeatherFromData(data) {
-    const pollutants = data.air_pollutant.hourly;
-    const units = data.air_pollutant.hourly_units; // get unit mapping from API
-
-    for (const key in POLLUTANT_NAME_MAP) {
-        if (pollutants[key] && pollutants[key].length > 0) {
-            const currentValue = pollutants[key][0]; // first (latest) value
-            const displayName = POLLUTANT_NAME_MAP[key];
-            const unit = units && units[key] ? units[key] : ''; // use unit from data
-
-            addOrUpdatePollutant(displayName, currentValue, unit);
-        }
+    if (!data.weather || !data.weather.hourly) {
+        console.error("Invalid weather data format");
+        return;
     }
+
+    const w = data.weather.hourly;
+    const u = data.weather.hourly_units || {}; // all units come from here
+
+    const first = (arr) => (arr[0]);
+
+    // Get values directly
+    const temperature = first(w.temperature_2m);
+    const humidity = first(w.relative_humidity_2m);
+    const windSpeed = first(w.wind_speed_10m);
+    const windDir = first(w.wind_direction_10m);
+    const precipitation = first(w.precipitation);
+    const cloudCover = first(w.cloud_cover);
+    const pressure = first(w.surface_pressure);
+
+    // 🌡️ Temperature
+    updateInfoCard("🌡️ Temperature", temperature, u.temperature_2m, `Feels like ${Math.round(temperature + 2)}${u.temperature_2m || ""}`);
+
+    // 💧 Humidity
+    updateInfoCard("💧 Humidity", humidity, u.relative_humidity_2m, `Dew point ${Math.round((humidity / 100) * temperature)}${u.temperature_2m || ""}`);
+
+    // 💨 Wind Speed
+    updateInfoCard("💨 Wind Speed", windSpeed, u.wind_speed_10m, `Direction: ${windDir}°`);
+
+    // 🌧️ Precipitation
+    updateInfoCard("🌧️ Precipitation", precipitation, u.precipitation, `Cloud cover: ${cloudCover}${u.cloud_cover || ""}`);
+
+    // ☁️ Cloud Cover
+    updateInfoCard("☁️ Cloud Cover", cloudCover, u.cloud_cover, cloudCover > 80 ? "Mostly cloudy" : "Partly cloudy");
+
+    // 🧭 Surface Pressure
+    updateInfoCard("🧭 Surface Pressure", pressure, u.surface_pressure, pressure > 1013 ? "High pressure" : "Low pressure");
 }
 
 function fetchDataAndUpdate(lat, lng) {
@@ -54,6 +78,7 @@ function fetchDataAndUpdate(lat, lng) {
         .then(data => {
             console.log(data);
             updatePollutantsFromData(data);
+            updateWeatherFromData(data);
         })
         .catch(err => console.error(err));
 }
@@ -743,23 +768,23 @@ function createLegend({
     });
 }
 
-function updateWeather(title, value, unit, detail) {
-    const weatherPanel = document.getElementById('weather-section');
-    if (!weatherPanel) {
-        console.error('weather-section not found');
-        return;
+function updateInfoCard(title, value, unit, detail) {
+    const cards = document.querySelectorAll(".info-card");
+    for (const card of cards) {
+        const titleEl = card.querySelector(".info-card-title");
+        if (titleEl && titleEl.textContent.includes(title)) {
+            const valueEl = card.querySelector(".info-card-value");
+            const unitEl = card.querySelector(".info-card-unit");
+            const detailEl = card.querySelector(".info-card-detail");
+
+            if (valueEl) valueEl.firstChild 
+                ? valueEl.firstChild.textContent = value 
+                : valueEl.prepend(document.createTextNode(value));
+
+            if (unitEl) unitEl.textContent = unit || "";
+            if (detailEl) detailEl.textContent = detail || "";
+        }
     }
-    const card = weatherPanel.querySelector('.info-card');
-    if (!card) {
-        console.error('No .info-card found inside weather-section');
-        return;
-    }
-    const titleEl = card.querySelector('.info-card-title');
-    const valueEl = card.querySelector('.info-card-value');
-    const detailEl = card.querySelector('.info-card-detail');
-    if (titleEl) titleEl.textContent = title;
-    if (valueEl) valueEl.innerHTML = `${value}<span class="info-card-unit">${unit || ''}</span>`;
-    if (detailEl) detailEl.textContent = detail || '';
 }
 
 function addOrUpdatePollutant(name, value, unit) {
