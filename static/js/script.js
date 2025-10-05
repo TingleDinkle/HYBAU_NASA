@@ -845,7 +845,6 @@ function addOrUpdatePollutant(name, value, unit) {
 }
 
 // City Search Function for Leaflet Map
-// Add this to your script.js file
 
 // Initialize search functionality
 function initializeCitySearch() {
@@ -1110,8 +1109,6 @@ if (themeToggle) {
 }
 
 // Add 72h Forecast Sliders to Air Quality and Weather Tabs
-// Add this to your script.js file
-
 // Global variables to store forecast data
 let forecastAirData = null;
 let forecastWeatherData = null;
