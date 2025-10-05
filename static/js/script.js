@@ -681,9 +681,9 @@ function createLegend({
     });
 }
 
-function updateInfoCard(containerSelector, { title, value, unit, detail }) {
+function updateWeather(title, value, unit, detail) {
     // Find the container (e.g. ".info-card" or parent element)
-    const container = document.querySelector(containerSelector);
+    const container = document.getElementById('forecase-section');
     if (!container) return console.error("Info card container not found:", containerSelector);
 
     // If the card exists, update it
