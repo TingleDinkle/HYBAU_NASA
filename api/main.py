@@ -14,7 +14,7 @@ def index():
 
 @app.route("/click/<float:lat>/<float:lng>")
 def handle_click(lat, lng):
-    # TODO: return lat, lng
+    # TODO: return the the JSON here. Like you use normal function and return str(something.json())
     return lat, lng
 
 def main_data(lat, lng) -> tuple:
