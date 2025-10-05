@@ -283,10 +283,11 @@ function setInfoPanelMode(mode) {
             if (healthAdvice) healthAdvice.classList.add('hidden');
         }
         if (lastUpdated) lastUpdated.classList.add('hidden');
-        // Focus on pollutants section (AQI box remains above)
-        if (pollutants) {
+        // Focus on the AQI display box
+        const aqiBox = city ? city.querySelector('.aqi-display') : null;
+        if (aqiBox) {
             setTimeout(() => {
-                pollutants.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                aqiBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }, 300);
         }
         return;
