@@ -24,6 +24,25 @@ function updatePollutantsFromData(data) {
     }
 }
 
+function fetchDataAndUpdate(lat, lng) {
+    const host = window.location.origin;
+
+    // Build URL: host/click/lat/lng
+    const url = `${host}/click/${lat}/${lng}`;
+
+    // Send GET request
+    fetch(url)
+        .then(res => {
+            if (!res.ok) throw new Error("Request failed: " + res.status);
+            return res.json(); // or .json() if your server returns JSON
+        })
+        .then(data => {
+            console.log(data);
+            updatePollutantsFromData(data);
+        })
+        .catch(err => console.error(err));
+}
+
 // Initialize Leaflet map
 document.addEventListener('DOMContentLoaded', () => {
     const mapContainer = document.getElementById('map');
@@ -140,22 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     .bindPopup(`Latitude: ${lat}<br>Longitude: ${lng}`)
                     .openPopup();
 
-                // Dynamic host (same as current page host)
-                const host = window.location.origin;
-
-                // Build URL: host/click/lat/lng
-                const url = `${host}/click/${lat}/${lng}`;
-
-                // Send GET request
-                fetch(url)
-                    .then(res => {
-                        if (!res.ok) throw new Error("Request failed: " + res.status);
-                        return res.json(); // or .json() if your server returns JSON
-                    })
-                    .then(data => {
-                        updatePollutantsFromData(data);
-                    })
-                    .catch(err => console.error(err));
+                fetchDataAndUpdate(lat, lng);
                 // Also show an alert for immediate feedback
                 // alert(`Coordinates: ${lat}, ${lng}`);
             });
@@ -210,6 +214,9 @@ function addUserLocationMarker() {
             .addTo(window.map)
             .bindPopup(`Your Location<br>Latitude: ${window.userLocation[0].toFixed(4)}<br>Longitude: ${window.userLocation[1].toFixed(4)}`)
             .openPopup();
+
+        fetchDataAndUpdate(userLocation[0], userLocation[1]);
+
         console.log('User location marker added successfully');
     } else {
         console.log('Cannot add marker - userLocation:', window.userLocation, 'map:', window.map);
