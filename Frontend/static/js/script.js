@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (mapContainer && typeof L !== 'undefined') {
         // Default center (Hanoi) - will be updated if geolocation is available
         let mapCenter = [21.0278, 105.8342];
-        let mapZoom = 7;
+        let mapZoom = 3;
         
         // Try to get user's location
         if (navigator.geolocation) {
