@@ -20,16 +20,5 @@ def air_meteo(lat, lon, days=15, timezone="auto"):
     recall.raise_for_status()
     return recall.json()
 
-if __name__ == "__main__":
-#    latitude, longtitude = 21.0278, 105.8342 #Change this later to match with frontend
-# To call: data = air_meteo(latitude, longtitude)
-# To access: data["hourly"][x] where x is in
-# ["pm10", "pm2_5", "carbon_monoxide", "nitrogen_dioxide", "sulphur_dioxide", "ozone"]
-"""
-print(data["hourly_units"]) #Every hour is an entry, which makes it 144 entries in total
-    for x in ["pm10", "pm2_5", "carbon_monoxide", "nitrogen_dioxide", "sulphur_dioxide", "ozone"]:
-        print(data["hourly"][x])
-"""
-
 
     
