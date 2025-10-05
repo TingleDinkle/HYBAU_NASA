@@ -1,5 +1,29 @@
 // JavaScript for interactive elements
 
+const POLLUTANT_NAME_MAP = {
+    carbon_monoxide: "Carbon Monoxide (CO)",
+    nitrogen_dioxide: "Nitrogen Dioxide (NO₂)",
+    ozone: "Ozone (O₃)",
+    pm2_5: "PM2.5 (Fine Particulate Matter)",
+    pm10: "PM10 (Coarse Particulate Matter)",
+    sulphur_dioxide: "Sulfur Dioxide (SO₂)"
+};
+
+function updatePollutantsFromData(data) {
+    const pollutants = data.air_pollutant.hourly;
+    const units = data.air_pollutant.hourly_units; // get unit mapping from API
+
+    for (const key in POLLUTANT_NAME_MAP) {
+        if (pollutants[key] && pollutants[key].length > 0) {
+            const currentValue = pollutants[key][0]; // first (latest) value
+            const displayName = POLLUTANT_NAME_MAP[key];
+            const unit = units && units[key] ? units[key] : ''; // use unit from data
+
+            addOrUpdatePollutant(displayName, currentValue, unit);
+        }
+    }
+}
+
 // Initialize Leaflet map
 document.addEventListener('DOMContentLoaded', () => {
     const mapContainer = document.getElementById('map');
@@ -126,13 +150,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 fetch(url)
                     .then(res => {
                         if (!res.ok) throw new Error("Request failed: " + res.status);
-                        return res.text(); // or .json() if your server returns JSON
+                        return res.json(); // or .json() if your server returns JSON
                     })
                     .then(data => {
-                        console.log("Server response:", data);
+                        updatePollutantsFromData(data);
                     })
                     .catch(err => console.error(err));
-                
                 // Also show an alert for immediate feedback
                 // alert(`Coordinates: ${lat}, ${lng}`);
             });

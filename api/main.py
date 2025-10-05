@@ -21,7 +21,7 @@ def handle_click(lat, lng) -> tuple:
     pre_air, pre_wea = prediction(air, weather)
 
     
-    return jsonify(air, weather, pre_air, pre_wea)
+    return jsonify({'air_pollutant': air, 'weather': weather, 'prediction_air': pre_air, 'prediction_weather': pre_wea})
 
 def main_data(lat : float, lng : float) -> tuple:
     """
