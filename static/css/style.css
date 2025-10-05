@@ -973,6 +973,15 @@ body.light-mode .sidebar-section div[style*="background"] {
     background: rgba(0, 0, 0, 0.08) !important;
 }
 
+/* Light mode overrides for moved Data Sources panel inside right info panel */
+body.light-mode #data-sources-section p {
+    color: #333 !important;
+}
+
+body.light-mode #data-sources-section div[style*="background"] {
+    background: rgba(0, 0, 0, 0.08) !important;
+}
+
 /* Light mode logo text */
 body.light-mode .logo span {
     color: #1a1a1a;
