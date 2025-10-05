@@ -165,18 +165,7 @@
     </div>
 
     <!-- Legend -->
-    <div class="legend">
-        <div class="legend-title">PM2.5 (μg/m³)</div>
-        <div class="legend-scale" style="background: linear-gradient(90deg, #00e400 0%, #ffff00 25%, #ff7e00 50%, #ff0000 75%, #8f3f97 100%);"></div>
-        <div class="legend-labels">
-            <span>0</span>
-            <span>15</span>
-            <span>35</span>
-            <span>55</span>
-            <span>110</span>
-            <span>250+</span>
-        </div>
-    </div>
+    <div class="legend" id="legend"></div>
 
     <!-- Right Info Panel -->
     <div id="info-panel">
@@ -328,5 +317,16 @@
     <!-- <button id="panel-toggle"></button> -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="../static/js/script.js"></script>
+    <script>
+        createLegend({
+            selector: '.legend', 
+            title: 'PM2.5', 
+            unit: 'μg/m³',
+            maxValue: 250,
+            thresholds: [15, 35, 55, 110, 250],
+            categories: ['Good', 'Moderate', 'Unhealthy for Sensitive Groups', 'Unhealthy', 'Very Unhealthy'],
+            colors: ['#00e400', '#ffff00', '#ff7e00', '#ff0000', '#8f3f97']
+        });
+    </script>
 </body>
 </html>

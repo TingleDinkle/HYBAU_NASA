@@ -319,6 +319,7 @@ body.info-open .right-panel {
 
 /* Legend */
 .legend {
+    width: 300px;
     position: fixed;
     bottom: 30px;
     left: 20px;
@@ -329,7 +330,7 @@ body.info-open .right-panel {
     padding: 15px;
     z-index: 800;
 }
-
+  
 .legend-title {
     font-size: 12px;
     text-transform: uppercase;
@@ -337,15 +338,36 @@ body.info-open .right-panel {
     color: rgba(255, 255, 255, 0.5);
     margin-bottom: 10px;
 }
-
+  
 .legend-scale {
+    background: linear-gradient(90deg, #00e400 0%, #ffff00 25%, #ff7e00 50%, #ff0000 75%, #8f3f97 100%);
     display: flex;
-    height: 8px;
+    height: 20px;
     border-radius: 4px;
+    outline: 1px solid rgba(0, 0, 0, 0.5);
     overflow: hidden;
     margin-bottom: 8px;
+    position: relative; /* keep relative to compute offsets inside .legend */
 }
-
+  
+#legend-tooltip {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    pointer-events: none;
+    display: none;        /* toggled by JS */
+    white-space: nowrap;
+    transform: translateX(-50%); /* center over pointer */
+    transition: opacity 0.15s ease;
+    opacity: 0;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+}
+  
 .legend-labels {
     display: flex;
     justify-content: space-between;

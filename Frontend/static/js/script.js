@@ -42,7 +42,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 zoom: zoom,
                 minZoom: 3,
                 maxZoom: 8,
-                worldCopyJump: true
+                worldCopyJump: true,
+                zoomControl: false
             });
             window.map.setMaxBounds([
                 [-90, -Infinity],
@@ -489,5 +490,109 @@ if (zoomOutBtn) {
                 zoomOutBtn.style.transform = '';
             }, 100);
         }
+    });
+}
+
+function createLegend({
+    selector = '.legend',
+    title = 'PM2.5',
+    unit = 'μg/m³',
+    maxValue = 250,
+    thresholds = [15, 35, 55, 110, 250],
+    categories = ['Good', 'Moderate', 'Unhealthy for Sensitive Groups', 'Unhealthy', 'Very Unhealthy'],
+    colors = ['#00e400', '#ffff00', '#ff7e00', '#ff0000', '#8f3f97']
+}) {
+    // Select DOM elements
+    const legend = document.querySelector(selector);
+    if (!legend) {
+    console.warn(`Legend container ${selector} not found.`);
+    return;
+    }
+
+    // Create inner elements dynamically
+    legend.innerHTML = `
+    <div class="legend-title">${title} (${unit})</div>
+    <div class="legend-scale" id="legend-scale"></div>
+    <div id="legend-tooltip"></div>
+    <div class="legend-labels">
+        ${thresholds.map(v => `<span>${v}</span>`).join('')}
+        <span>${maxValue}+</span>
+    </div>
+    `;
+
+    const legendScale = legend.querySelector('#legend-scale');
+    const tooltip = legend.querySelector('#legend-tooltip');
+
+    // Build gradient background
+    const gradientStops = colors.map((c, i) => `${c} ${(i / (colors.length - 1)) * 100}%`).join(', ');
+    legendScale.style.background = `linear-gradient(90deg, ${gradientStops})`;
+
+    // Function to get category from value
+    function getCategory(val) {
+    for (let i = 0; i < thresholds.length; i++) {
+        if (val <= thresholds[i]) return categories[i];
+    }
+    return categories[categories.length - 1];
+    }
+
+    // Mouse hover interaction
+    legendScale.addEventListener('mousemove', (e) => {
+    const scaleRect = legendScale.getBoundingClientRect();
+    const legendRect = legend.getBoundingClientRect();
+
+    const x = Math.max(0, Math.min(scaleRect.width, e.clientX - scaleRect.left));
+    const frac = x / scaleRect.width;
+    const est = Math.round(frac * maxValue);
+
+    const label = getCategory(est);
+
+    // Tooltip text — status only
+    tooltip.innerHTML = label;
+
+    // Show tooltip
+    tooltip.style.display = 'block';
+    const leftInsideLegend = e.clientX - legendRect.left;
+    tooltip.style.left = `${leftInsideLegend}px`;
+
+    const scaleTopInsideLegend = scaleRect.top - legendRect.top;
+    const ttHeight = tooltip.offsetHeight || 24;
+    tooltip.style.top = `${scaleTopInsideLegend - ttHeight - 8}px`;
+
+    requestAnimationFrame(() => {
+        tooltip.style.opacity = '1';
+    });
+    });
+
+    legendScale.addEventListener('mouseleave', () => {
+    tooltip.style.opacity = '0';
+    setTimeout(() => { tooltip.style.display = 'none'; }, 160);
+    });
+
+    // Touch support
+    legendScale.addEventListener('touchstart', (e) => {
+    const touch = e.touches[0];
+    if (touch) {
+        legendScale.dispatchEvent(new MouseEvent('mousemove', {
+        clientX: touch.clientX,
+        clientY: touch.clientY,
+        bubbles: true
+        }));
+    }
+    }, { passive: true });
+
+    legendScale.addEventListener('touchmove', (e) => {
+    const touch = e.touches[0];
+    if (touch) {
+        legendScale.dispatchEvent(new MouseEvent('mousemove', {
+        clientX: touch.clientX,
+        clientY: touch.clientY,
+        bubbles: true
+        }));
+    }
+    }, { passive: true });
+
+    legendScale.addEventListener('touchend', () => {
+    tooltip.style.opacity = '0';
+    setTimeout(() => { tooltip.style.display = 'none'; }, 160);
     });
 }
