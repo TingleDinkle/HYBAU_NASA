@@ -24,7 +24,7 @@ class TempoData:
         """
         # Get time range (16 hours ago from now)
         today : datetime = datetime.datetime.now()
-        three_hours_ago : datetime = datetime.timedelta(hours=16)
+        three_hours_ago : datetime = datetime.timedelta(days=1)
         temp : datetime = today - three_hours_ago
 
         result : list = earthaccess.search_data(short_name=f"TEMPO_{self.chem}_L2",
@@ -62,13 +62,13 @@ class TempoData:
 
 if __name__ == "__main__":
     # Test data
-    tempo = TempoData("NO2", -82.370971, 36.146747)
+    tempo = TempoData("NO2", -107.402344, 40.044438)
     no2 = tempo.fetch_data(tempo.search_data()) # 10/5 9.915e+14
 
-    tempo = TempoData("O3TOT", -82.370971, 36.146747)
+    tempo = TempoData("O3TOT", -107.402344, 40.044438)
     o3 = tempo.fetch_data(tempo.search_data()) # 10/5 2.689e+02
 
-    tempo = TempoData("HCHO", -82.370971, 36.146747)
+    tempo = TempoData("HCHO", -107.402344, 40.044438)
     hcho = tempo.fetch_data(tempo.search_data()) # 10/5 8.281e+15
 
     print(no2, o3, hcho, end="\n")
