@@ -12,7 +12,7 @@ class TempoData:
         :param lat: Latitude of location
         """
         self.chem = chem
-        self.login = earthaccess.login(persist=True)
+        self.login = earthaccess.login(persist=True, strategy="netrc")
         self.lon = lon
         self.lat = lat
 
