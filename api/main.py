@@ -4,6 +4,7 @@ from data_handler.weather_request import weather_meteo
 from data_handler.tempo_data import TempoData
 from model.model_MRXGBoost import MRXGBoost
 import pandas as pd
+import requests
 
 app = Flask(__name__, static_folder='../static', template_folder='../templates')
 
@@ -13,11 +14,16 @@ def index():
 
 
 @app.route("/click/<float:lat>/<float:lng>")
-def handle_click(lat, lng):
-    # TODO: return lat, lng
-    return lat, lng
+def handle_click(lat, lng) -> tuple:
+    # TODO: return the the JSON here. Like you use normal function and return str(something.json())
 
-def main_data(lat, lng) -> tuple:
+    air, weather = main_data(lat, lng)   
+    pre_air, pre_wea = prediction(air, weather)
+
+    
+    return air, weather, pre_air, pre_wea
+
+def main_data(lat : float, lng : float) -> tuple:
     """
     Call this every click
     :lat float: latitude
@@ -42,14 +48,12 @@ def main_TEMPO_data(lat : float, lng : float) -> tuple:
 
     return tempo_no2, tempo_o3, tempo_hcho
 
-def prediction() -> tuple:
+def prediction(air, weather) -> tuple:
     """
     Runs XGBOOST model on DataFrame.
     :returns: Tuple of json (weather and air)
     """
-    air, weather = main_data()
-
-    model_wea = MRXGBoost(n_lag=100, time_feature=True)
+    model_wea = MRXGBoost(n_lag=32, time_feature=True)
     data_wea = weather['hourly']
     df_wea = pd.DataFrame(data_wea)
     df_wea['time'] = pd.to_datetime(df_wea["time"])
@@ -59,7 +63,7 @@ def prediction() -> tuple:
     model_wea.evaluate(graph=False)
     forecast_df_wea = model_wea.forecast(steps=72)
 
-    model_air = MRXGBoost(n_lag=100, time_feature=True)
+    model_air = MRXGBoost(n_lag=32, time_feature=True)
     data_air = air['hourly']
     df_air = pd.DataFrame(data_air)
     df_air['time'] = pd.to_datetime(df_air["time"])
@@ -72,7 +76,7 @@ def prediction() -> tuple:
     json_wea = forecast_df_wea.to_json()
     json_air = forecast_df_air.to_json()
 
-    return json_wea, json_air
+    return json_air, json_wea
 
 if __name__ == '__main__':
     app.run(debug=True)
