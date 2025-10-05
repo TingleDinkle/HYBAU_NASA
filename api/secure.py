@@ -14,18 +14,18 @@ class secure_http(SimpleHTTPRequestHandler):  # access only index and static fil
     ]
 
     def list_directory(self, path):
-        # chặn xem folder
+        # block folder viewing
         self.send_error(403, "Access denied")
         return None
 
     def do_GET(self):
-        # Chuyển "/" thành index.html
+        # change / to index.html
         if self.path == "/" or self.path == "/index.html":
             self.path = INDEX_FILE
             self.send_index()
             return
 
-        # Cho phép load các file tĩnh trong /static
+        # Allow file loading in /static
         if self.path in self.ALLOWED_PATHS:
             full_path = os.path.join(BASE_DIR, self.path.lstrip("/"))
             if os.path.isfile(full_path):
@@ -35,14 +35,14 @@ class secure_http(SimpleHTTPRequestHandler):  # access only index and static fil
                 self.send_error(404, "File not found")
             return
 
-        # Chặn tất cả các request khác
+        # Block all other requests
         self.send_error(403, "Access denied")
 
     def send_index(self):  # send file
         try:
             with open(self.path, 'rb') as file:
                 self.send_response(200)
-                # Tự động xác định content-type dựa trên đuôi file
+                # Automatically detect files based on format
                 if self.path.endswith(".css"):
                     ctype = "text/css"
                 elif self.path.endswith(".js"):
@@ -56,7 +56,7 @@ class secure_http(SimpleHTTPRequestHandler):  # access only index and static fil
             self.send_error(404, "File not found")
 
 if __name__ == "__main__":  # run server
-    os.chdir(BASE_DIR)  # đảm bảo working dir đúng
+    os.chdir(BASE_DIR)  # Ensure correct base directory
     server_address = ('', PORT)
     httpd = HTTPServer(server_address, secure_http)
     print(f"✅ Serving secure site on port {PORT}")
