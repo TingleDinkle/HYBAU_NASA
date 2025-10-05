@@ -236,23 +236,80 @@ modeBtns.forEach(btn => {
             loading.style.display = 'none';
         }, 1000);
 
-        // If Forecast tab clicked, open info panel and scroll to forecast section
+        // Panel mode handling
         const mode = btn.getAttribute('data-mode');
-        if (mode === 'forecast') {
-            if (infoPanel && !infoPanel.classList.contains('open')) {
-                infoPanel.classList.add('open');
-                document.body.classList.add('info-open');
-            }
-            const target = document.getElementById('forecast-section');
-            if (target) {
-                // wait for panel open transition to complete before scrolling
-                setTimeout(() => {
-                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }, 350);
-            }
-        }
+        setInfoPanelMode(mode);
     });
 });
+
+function setInfoPanelMode(mode) {
+    if (!infoPanel) return;
+
+    // Always open panel for mode switches
+    if (!infoPanel.classList.contains('open')) {
+        infoPanel.classList.add('open');
+        document.body.classList.add('info-open');
+    }
+
+    // Sections
+    const city = document.getElementById('city-section');
+    const weather = document.getElementById('weather-section');
+    const pollutants = document.getElementById('pollutants-section');
+    const forecast = document.getElementById('forecast-section');
+    const lastUpdated = document.querySelector('.last-updated');
+
+    // Reset all (show)
+    [city, weather, pollutants, forecast, lastUpdated].forEach(el => {
+        if (el) el.classList.remove('hidden');
+    });
+    // Also reset inner elements hidden in modes
+    if (city) {
+        const cityHeader = city.querySelector('.city-header');
+        const healthAdvice = city.querySelector('.health-advice');
+        if (cityHeader) cityHeader.classList.remove('hidden');
+        if (healthAdvice) healthAdvice.classList.remove('hidden');
+    }
+
+    if (mode === 'air-quality') {
+        if (weather) weather.classList.add('hidden');
+        if (forecast) forecast.classList.add('hidden');
+        // Keep AQI box visible but hide city header and health advice
+        if (city) {
+            const cityHeader = city.querySelector('.city-header');
+            const healthAdvice = city.querySelector('.health-advice');
+            if (cityHeader) cityHeader.classList.add('hidden');
+            if (healthAdvice) healthAdvice.classList.add('hidden');
+        }
+        if (lastUpdated) lastUpdated.classList.add('hidden');
+        // Focus on pollutants section (AQI box remains above)
+        if (pollutants) {
+            setTimeout(() => {
+                pollutants.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 300);
+        }
+        return;
+    }
+
+    if (mode === 'forecast') {
+        // Scroll to forecast
+        if (forecast) {
+            setTimeout(() => {
+                forecast.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 300);
+        }
+        return;
+    }
+
+    if (mode === 'weather') {
+        // Scroll to weather section
+        if (weather) {
+            setTimeout(() => {
+                weather.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 300);
+        }
+        return;
+    }
+}
 
 // Layer Buttons
 const layerBtns = document.querySelectorAll('.layer-btn');

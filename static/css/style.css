@@ -375,6 +375,9 @@ body.info-open .right-panel {
     color: rgba(255, 255, 255, 0.7);
 }
 
+/* Utility */
+.hidden { display: none !important; }
+
 /* Right Sidebar Panel */
 #info-panel {
     position: fixed;
