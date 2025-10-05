@@ -852,3 +852,268 @@ function addOrUpdatePollutant(name, value, unit) {
         panel.appendChild(item);
     }
 }
+
+// City Search Function for Leaflet Map
+// Add this to your script.js file
+
+// Initialize search functionality
+function initializeCitySearch() {
+    const searchBar = document.querySelector('.search-bar');
+    const searchResults = createSearchResultsDropdown();
+    
+    let searchTimeout;
+    
+    // Search on input
+    searchBar.addEventListener('input', (e) => {
+        clearTimeout(searchTimeout);
+        const query = e.target.value.trim();
+        
+        if (query.length < 2) {
+            hideSearchResults();
+            return;
+        }
+        
+        // Debounce search requests
+        searchTimeout = setTimeout(() => {
+            searchCity(query);
+        }, 300);
+    });
+    
+    // Handle Enter key
+    searchBar.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            const query = e.target.value.trim();
+            if (query.length >= 2) {
+                searchCity(query);
+            }
+        }
+    });
+    
+    // Close results when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!searchBar.contains(e.target) && !searchResults.contains(e.target)) {
+            hideSearchResults();
+        }
+    });
+}
+
+// Create dropdown for search results
+function createSearchResultsDropdown() {
+    const existing = document.getElementById('search-results');
+    if (existing) return existing;
+    
+    const dropdown = document.createElement('div');
+    dropdown.id = 'search-results';
+    dropdown.style.cssText = `
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: rgba(17, 24, 39, 0.98);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        margin-top: 8px;
+        max-height: 300px;
+        overflow-y: auto;
+        display: none;
+        z-index: 1000;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    `;
+    
+    const searchContainer = document.querySelector('.search-container');
+    searchContainer.style.position = 'relative';
+    searchContainer.appendChild(dropdown);
+    
+    return dropdown;
+}
+
+// Search for cities using Nominatim (OpenStreetMap)
+async function searchCity(query) {
+    try {
+        const response = await fetch(
+            `https://nominatim.openstreetmap.org/search?` +
+            `format=json&q=${encodeURIComponent(query)}&` +
+            `addressdetails=1&limit=5&featuretype=city`
+        );
+        
+        if (!response.ok) throw new Error('Search failed');
+        
+        const results = await response.json();
+        displaySearchResults(results);
+        
+    } catch (error) {
+        console.error('City search error:', error);
+        showSearchError();
+    }
+}
+
+// Display search results
+function displaySearchResults(results) {
+    const dropdown = document.getElementById('search-results');
+    
+    if (!results || results.length === 0) {
+        dropdown.innerHTML = `
+            <div style="padding: 15px; color: rgba(255, 255, 255, 0.5); text-align: center;">
+                No cities found
+            </div>
+        `;
+        dropdown.style.display = 'block';
+        return;
+    }
+    
+    dropdown.innerHTML = results.map(result => {
+        const city = result.address?.city || 
+                     result.address?.town || 
+                     result.address?.village || 
+                     result.name;
+        const country = result.address?.country || '';
+        const state = result.address?.state || '';
+        
+        return `
+            <div class="search-result-item" 
+                 data-lat="${result.lat}" 
+                 data-lon="${result.lon}"
+                 data-name="${city}"
+                 style="
+                     padding: 12px 15px;
+                     cursor: pointer;
+                     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                     transition: background 0.2s ease;
+                 "
+                 onmouseover="this.style.background='rgba(255, 255, 255, 0.1)'"
+                 onmouseout="this.style.background='transparent'">
+                <div style="font-size: 14px; font-weight: 500; color: #fff; margin-bottom: 4px;">
+                    <i class="fas fa-map-marker-alt" style="margin-right: 8px; color: #667eea;"></i>
+                    ${city}
+                </div>
+                <div style="font-size: 12px; color: rgba(255, 255, 255, 0.6);">
+                    ${state ? state + ', ' : ''}${country}
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    dropdown.style.display = 'block';
+    
+    // Add click handlers to results
+    dropdown.querySelectorAll('.search-result-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const lat = parseFloat(item.dataset.lat);
+            const lon = parseFloat(item.dataset.lon);
+            const name = item.dataset.name;
+            
+            moveMarkerToCity(lat, lon, name);
+            hideSearchResults();
+            
+            // Clear search bar
+            document.querySelector('.search-bar').value = name;
+        });
+    });
+}
+
+// Move marker to selected city
+function moveMarkerToCity(lat, lon, cityName) {
+    if (!window.map) {
+        console.error('Map not initialized');
+        return;
+    }
+    
+    // Remove existing markers
+    if (window.marker) {
+        window.map.removeLayer(window.marker);
+    }
+    if (window.userLocationMarker) {
+        window.map.removeLayer(window.userLocationMarker);
+        window.userLocationMarker = null;
+    }
+    
+    // Create custom icon for the marker
+    const markerIcon = L.divIcon({
+        className: 'user-location-marker',
+        html: '<div style="background-color:rgb(48, 35, 197); width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.5);"></div>',
+        iconSize: [20, 20],
+        iconAnchor: [10, 10]
+    });
+    
+    // Add new marker
+    window.marker = L.marker([lat, lon], { icon: markerIcon })
+        .addTo(window.map)
+        .bindPopup(`
+            <div style="text-align: center;">
+                <strong>${cityName}</strong><br>
+                Lat: ${lat.toFixed(4)}<br>
+                Lon: ${lon.toFixed(4)}
+            </div>
+        `)
+        .openPopup();
+    
+    // Fly to location with animation
+    window.map.flyTo([lat, lon], 10, {
+        duration: 1.5,
+        easeLinearity: 0.5
+    });
+    
+    // Fetch and update data for this location
+    fetchDataAndUpdate(lat, lon);
+    
+    // Open info panel if not already open
+    const infoPanel = document.getElementById('info-panel');
+    if (infoPanel && !infoPanel.classList.contains('open')) {
+        infoPanel.classList.add('open');
+        document.body.classList.add('info-open');
+    }
+    
+    console.log(`Moved to ${cityName}: ${lat}, ${lon}`);
+}
+
+// Hide search results
+function hideSearchResults() {
+    const dropdown = document.getElementById('search-results');
+    if (dropdown) {
+        dropdown.style.display = 'none';
+    }
+}
+
+// Show error message
+function showSearchError() {
+    const dropdown = document.getElementById('search-results');
+    dropdown.innerHTML = `
+        <div style="padding: 15px; color: rgba(255, 100, 100, 0.8); text-align: center;">
+            <i class="fas fa-exclamation-triangle" style="margin-right: 8px;"></i>
+            Search error. Please try again.
+        </div>
+    `;
+    dropdown.style.display = 'block';
+}
+
+// Light mode styling for search results
+function updateSearchResultsTheme() {
+    const dropdown = document.getElementById('search-results');
+    if (dropdown) {
+        const isLightMode = document.body.classList.contains('light-mode');
+        if (isLightMode) {
+            dropdown.style.background = 'rgba(255, 255, 255, 0.98)';
+            dropdown.style.borderColor = 'rgba(0, 0, 0, 0.1)';
+        } else {
+            dropdown.style.background = 'rgba(17, 24, 39, 0.98)';
+            dropdown.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+        }
+    }
+}
+
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    // Wait a bit for map to initialize
+    setTimeout(() => {
+        initializeCitySearch();
+    }, 500);
+});
+
+// Update theme when toggled
+const themeToggle = document.getElementById('theme-toggle');
+if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+        setTimeout(updateSearchResultsTheme, 100);
+    });
+}
