@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.multioutput import MultiOutputRegressor
 from xgboost import XGBRegressor
-from Backend.weather_request import weather_meteo
+from weather_request import weather_meteo
 
 """
 IMPORTANT REMINDER: TESTING != EXTRAPOLATING
@@ -182,7 +182,7 @@ if __name__ == "__main__":
     data = data['hourly']
     df = pd.DataFrame(data)
     df['time'] = pd.to_datetime(df['time'])
-    #df.set_index('time', inplace=True)
+    df.set_index('time', inplace=True)
     print(df.tail())
 
     # Try out the model
