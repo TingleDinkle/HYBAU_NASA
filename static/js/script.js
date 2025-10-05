@@ -597,3 +597,44 @@ function createLegend({
     setTimeout(() => { tooltip.style.display = 'none'; }, 160);
     });
 }
+
+function updateInfoCard(containerSelector, { title, value, unit, detail }) {
+    // Find the container (e.g. ".info-card" or parent element)
+    const container = document.querySelector(containerSelector);
+    if (!container) return console.error("Info card container not found:", containerSelector);
+
+    // If the card exists, update it
+    let card = container.querySelector('.info-card');
+    if (!card) {
+        card = document.createElement('div');
+        card.className = 'info-card';
+        container.appendChild(card);
+    }
+
+    // Build or update inner HTML
+    card.innerHTML = `
+        <div class="info-card-title">${title}</div>
+        <div class="info-card-value">
+            ${value}<span class="info-card-unit">${unit || ''}</span>
+        </div>
+        <div class="info-card-detail">${detail || ''}</div>
+    `;
+}
+
+function addPollutantItem(panelSelector, name, value, unit) {
+    const panel = document.querySelector(panelSelector);
+    if (!panel) return console.error("Panel not found:", panelSelector);
+
+    // Create pollutant item container
+    const item = document.createElement('div');
+    item.className = 'pollutant-item';
+
+    // Inner structure
+    item.innerHTML = `
+        <span class="pollutant-name">${name}</span>
+        <span class="pollutant-value">${value} ${unit || ''}</span>
+    `;
+
+    // Insert before the end of panel (after all existing pollutant items)
+    panel.appendChild(item);
+}
