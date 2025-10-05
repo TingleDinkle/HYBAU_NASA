@@ -1,6 +1,7 @@
 from pprint import pprint
 import requests
 import datetime
+import json
 
 def air_meteo(lat : float, lon : float, days : int = 15, timezone : str ="auto") -> json:
     # Determine date range

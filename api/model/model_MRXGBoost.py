@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.multioutput import MultiOutputRegressor
 from xgboost import XGBRegressor
-from Backend.weather_request import weather_meteo
+from data_handler.weather_request import weather_meteo
 
 """
 IMPORTANT REMINDER: TESTING != EXTRAPOLATING
