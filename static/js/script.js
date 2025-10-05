@@ -235,6 +235,22 @@ modeBtns.forEach(btn => {
         setTimeout(() => {
             loading.style.display = 'none';
         }, 1000);
+
+        // If Forecast tab clicked, open info panel and scroll to forecast section
+        const mode = btn.getAttribute('data-mode');
+        if (mode === 'forecast') {
+            if (infoPanel && !infoPanel.classList.contains('open')) {
+                infoPanel.classList.add('open');
+                document.body.classList.add('info-open');
+            }
+            const target = document.getElementById('forecast-section');
+            if (target) {
+                // wait for panel open transition to complete before scrolling
+                setTimeout(() => {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 350);
+            }
+        }
     });
 });
 
