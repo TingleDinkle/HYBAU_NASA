@@ -1,4 +1,9 @@
 from flask import Flask, send_file, make_response, request, render_template, abort
+from data_handler.air_request import air_meteo
+from data_handler.weather_request import weather_meteo
+from data_handler.tempo_data import TempoData
+from model.model_MRXGBoost import MRXGBoost
+import pandas as pd
 
 app = Flask(__name__, static_folder='../static', template_folder='../templates')
 
@@ -9,8 +14,65 @@ def index():
 
 @app.route("/click/<float:lat>/<float:lng>")
 def handle_click(lat, lng):
-    return
+    # TODO: return lat, lng
+    return lat, lng
 
+def main_data(lat, lng) -> tuple:
+    """
+    Call this every click
+    :lat float: latitude
+    :lng float: longitude
+    :returns: tuple of json
+    """
+    air_quality = air_meteo(lat, lng, days=30) # .json
+    weather = weather_meteo(lat, lng, days=30) # .json
+
+    return air_quality, weather
+
+def main_TEMPO_data(lat : float, lng : float) -> tuple:
+    """
+    Only call if clicked on USA region
+    :lat float: latitude
+    :lng float: longitude
+    :returns: tuple of (no2, o3, hcho)
+    """
+    tempo_no2 : float = TempoData("NO2", lng, lat)
+    tempo_o3 : float = TempoData("O3TOT", lng, lat)
+    tempo_hcho : float = TempoData("HCHO", lng, lat)
+
+    return tempo_no2, tempo_o3, tempo_hcho
+
+def prediction() -> tuple:
+    """
+    Runs XGBOOST model on DataFrame.
+    :returns: Tuple of json (weather and air)
+    """
+    air, weather = main_data()
+
+    model_wea = MRXGBoost(n_lag=100, time_feature=True)
+    data_wea = weather['hourly']
+    df_wea = pd.DataFrame(data_wea)
+    df_wea['time'] = pd.to_datetime(df_wea["time"])
+    df_wea.set_index("time", inplace=True)
+    model_wea.process_data(df_wea)
+    model_wea.fit()
+    model_wea.evaluate(graph=False)
+    forecast_df_wea = model_wea.forecast(steps=72)
+
+    model_air = MRXGBoost(n_lag=100, time_feature=True)
+    data_air = air['hourly']
+    df_air = pd.DataFrame(data_air)
+    df_air['time'] = pd.to_datetime(df_air["time"])
+    df_air.set_index("time", inplace=True)
+    model_air.process_data(df_air)
+    model_air.fit()
+    model_air.evaluate(graph=False)
+    forecast_df_air = model_air.forecast(steps=72)
+
+    json_wea = forecast_df_wea.to_json()
+    json_air = forecast_df_air.to_json()
+
+    return json_wea, json_air
 
 if __name__ == '__main__':
     app.run(debug=True)

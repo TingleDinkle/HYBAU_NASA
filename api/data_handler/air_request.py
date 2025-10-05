@@ -2,7 +2,7 @@ from pprint import pprint
 import requests
 import datetime
 
-def air_meteo(lat, lon, days=15, timezone="auto"):
+def air_meteo(lat : float, lon : float, days : int = 15, timezone : str ="auto") -> json:
     # Determine date range
     end_date = datetime.date.today() #today (UTC)
     start_date = end_date - datetime.timedelta(days=days)
