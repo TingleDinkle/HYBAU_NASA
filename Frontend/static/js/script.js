@@ -49,10 +49,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 [90, Infinity]
             ]);
             window.map.options.maxBoundsViscosity = 1.0;
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors',
-                noWrap: false
-            }).addTo(window.map);
+            const savedTheme = localStorage.getItem('theme');
+            const isLightMode = savedTheme === 'light';
+
+            if (isLightMode) {
+                window.mapTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors',
+                    noWrap: false,
+                    maxZoom: 19
+                });
+            } else {
+                // Dark mode - using Stamen Toner Lite for a softer, more modern look
+                window.mapTileLayer = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
+                    attribution: '© Stadia Maps © OpenMapTiles © OpenStreetMap contributors',
+                    noWrap: false,
+                    maxZoom: 19
+                });
+            }
+
+            window.mapTileLayer.addTo(window.map);
+
             
             // Store user location globally for marker management
             window.userLocation = center;
@@ -407,17 +423,18 @@ function updateMapTiles() {
         window.map.removeLayer(window.mapTileLayer);
         
         if (isDarkMode) {
-            // Dark mode map
-            window.mapTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors',
-                noWrap: false
+            // Dark mode map - using Stadia Maps Alidade Smooth Dark (modern, vibrant, less depressing)
+            window.mapTileLayer = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
+                attribution: '© Stadia Maps © OpenMapTiles © OpenStreetMap contributors',
+                noWrap: false,
+                maxZoom: 19
             });
         } else {
-            // Light mode map - using a brighter tile set
+            // Light mode map - using standard OpenStreetMap
             window.mapTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap contributors',
                 noWrap: false,
-                className: 'light-mode-tiles'
+                maxZoom: 19
             });
         }
         

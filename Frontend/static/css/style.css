@@ -951,3 +951,13 @@ body.light-mode .sidebar-section div[style*="background"] {
 body.light-mode .logo span {
     color: #1a1a1a;
 }
+
+body:not(.light-mode) #map {
+    
+    filter: brightness(1.05) saturate(1.15);
+}
+
+
+#map {
+    background: var(--bg-primary);
+}
