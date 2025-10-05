@@ -244,36 +244,6 @@
         <!-- Air Pollutants Section -->
         <div class="panel-section" id="pollutants-section">
             <h2>🏭 Air Pollutants</h2>
-            
-            <div class="pollutant-item">
-                <span class="pollutant-name"></span>
-                <span class="pollutant-value"></span>
-            </div>
-
-            <div class="pollutant-item">
-                <span class="pollutant-name"></span>
-                <span class="pollutant-value"></span>
-            </div>
-
-            <div class="pollutant-item">
-                <span class="pollutant-name"></span>
-                <span class="pollutant-value"></span>
-            </div>
-
-            <div class="pollutant-item">
-                <span class="pollutant-name"></span>
-                <span class="pollutant-value"></span>
-            </div>
-
-            <div class="pollutant-item">
-                <span class="pollutant-name"></span>
-                <span class="pollutant-value"></span>
-            </div>
-
-            <div class="pollutant-item">
-                <span class="pollutant-name"></span>
-                <span class="pollutant-value"></span>
-            </div>
         </div>
 
         <!-- Forecast Section -->
@@ -324,6 +294,15 @@
             categories: ['Good', 'Moderate', 'Unhealthy for Sensitive Groups', 'Unhealthy', 'Very Unhealthy'],
             colors: ['#00e400', '#ffff00', '#ff7e00', '#ff0000', '#8f3f97']
         });
+    </script>
+    <script>
+        addOrUpdatePollutant('PM2.5', 45, 'μg/m³');
+        addOrUpdatePollutant('PM10', 45, 'μg/m³');
+        addOrUpdatePollutant('PM2.55', 45, 'μg/m³');
+        addOrUpdatePollutant('PM2.555', 45, 'μg/m³');
+        addOrUpdatePollutant('PM2.6', 45, 'μg/m³');
+        addOrUpdatePollutant('PM2.7', 45, 'μg/m³');
+        addOrUpdatePollutant('PM2.8', 45, 'μg/m³');
     </script>
 </body>
 </html>

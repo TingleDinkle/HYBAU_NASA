@@ -694,20 +694,25 @@ function updateInfoCard(containerSelector, { title, value, unit, detail }) {
     `;
 }
 
-function addPollutantItem(panelSelector, name, value, unit) {
-    const panel = document.querySelector(panelSelector);
-    if (!panel) return console.error("Panel not found:", panelSelector);
+function addOrUpdatePollutant(name, value, unit) {
+    const panel = document.getElementById('pollutants-section');
+    if (!panel) return console.error("Panel with id 'pollutants-section' not found");
 
-    // Create pollutant item container
-    const item = document.createElement('div');
-    item.className = 'pollutant-item';
+    // Try to find an existing pollutant item with the same name
+    const existing = Array.from(panel.querySelectorAll('.pollutant-item'))
+        .find(item => item.querySelector('.pollutant-name')?.textContent === name);
 
-    // Inner structure
-    item.innerHTML = `
-        <span class="pollutant-name">${name}</span>
-        <span class="pollutant-value">${value} ${unit || ''}</span>
-    `;
-
-    // Insert before the end of panel (after all existing pollutant items)
-    panel.appendChild(item);
+    if (existing) {
+        // Update value if found
+        existing.querySelector('.pollutant-value').textContent = `${value} ${unit || ''}`;
+    } else {
+        // Otherwise, create a new pollutant item
+        const item = document.createElement('div');
+        item.className = 'pollutant-item';
+        item.innerHTML = `
+            <span class="pollutant-name">${name}</span>
+            <span class="pollutant-value">${value} ${unit || ''}</span>
+        `;
+        panel.appendChild(item);
+    }
 }
