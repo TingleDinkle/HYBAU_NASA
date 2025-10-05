@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (mapContainer && typeof L !== 'undefined') {
         // Default center (Hanoi) - will be updated if geolocation is available
         let mapCenter = [21.0278, 105.8342];
-        let mapZoom = 7;
+        let mapZoom = 3;
         
         // Try to get user's location
         if (navigator.geolocation) {
@@ -53,18 +53,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const isLightMode = savedTheme === 'light';
 
             if (isLightMode) {
-                window.mapTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap contributors',
+                window.mapTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
+                    subdomains: 'abcd',
                     noWrap: false,
-                    maxZoom: 19
-                });
+                    maxZoom: 8
+                })
             } else {
-                // Dark mode - using Stamen Toner Lite for a softer, more modern look
-                window.mapTileLayer = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
-                    attribution: '© Stadia Maps © OpenMapTiles © OpenStreetMap contributors',
-                    noWrap: false,
-                    maxZoom: 19
-                });
+                window.mapTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
+                    subdomains: 'abcd',
+                    maxZoom: 8
+                })
             }
 
             window.mapTileLayer.addTo(window.map);
@@ -78,12 +78,12 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('Location marker added at:', center);
             
             // Listen for map events to ensure marker stays visible
-            window.map.on('moveend', ensureUserLocationMarkerVisible);
-            window.map.on('zoomend', ensureUserLocationMarkerVisible);
-            window.map.on('viewreset', ensureUserLocationMarkerVisible);
+            // window.map.on('moveend', ensureUserLocationMarkerVisible);
+            // window.map.on('zoomend', ensureUserLocationMarkerVisible);
+            // window.map.on('viewreset', ensureUserLocationMarkerVisible);
             
             // Also check periodically to ensure marker is always visible
-            setInterval(ensureUserLocationMarkerVisible, 2000); // Check every 2 seconds
+            // setInterval(ensureUserLocationMarkerVisible, 2000); // Check every 2 seconds
 
 
             const markerIcon = L.divIcon({
@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 iconAnchor: [10, 10]
             });
 
-            var marker = null;
+            window.marker = null;
             
             // Add click event listener to print coordinates
             window.map.on('click', (e) => {
@@ -101,13 +101,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 const lng = e.latlng.lng.toFixed(6);
                 console.log(`Clicked coordinates: ${lat}, ${lng}`);
 
-                if (marker !== null) {
-                    window.map.removeLayer(marker);
+                if (window.marker !== null) {
+                    window.map.removeLayer(window.marker);
                 }
 
-                marker = L.marker(e.latlng, { icon: markerIcon })
+                if (window.userLocationMarker !== null) {
+                    window.map.removeLayer(window.userLocationMarker);
+                    window.userLocationMarker = null;
+                }
+
+                window.marker = L.marker(e.latlng, { icon: markerIcon })
                     .addTo(window.map)
-                    .bindPopup(`Coordinates: ${lat}, ${lng}`);
+                    .bindPopup(`Latitude: ${lat}<br>Longitude: ${lng}`)
+                    .openPopup();
 
                 // Dynamic host (same as current page host)
                 const host = window.location.origin;
@@ -131,55 +137,60 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
         
-        function addUserLocationMarker() {
-            if (window.userLocation && window.map) {
-                console.log('Adding user location marker at:', window.userLocation);
-                
-                // Remove existing marker if it exists
-                if (window.userLocationMarker) {
-                    window.map.removeLayer(window.userLocationMarker);
-                    console.log('Removed existing marker');
-                }
-                
-                // Create a custom icon for better visibility
-                const userLocationIcon = L.divIcon({
-                    className: 'user-location-marker',
-                    html: '<div style="background-color: #ff0000; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.5);"></div>',
-                    iconSize: [20, 20],
-                    iconAnchor: [10, 10]
-                });
-                
-                // Add new marker at user location
-                window.userLocationMarker = L.marker(window.userLocation, { icon: userLocationIcon })
-                    .addTo(window.map)
-                    .bindPopup(`Your Location<br>Lat: ${window.userLocation[0].toFixed(4)}<br>Lng: ${window.userLocation[1].toFixed(4)}`);
-                
-                console.log('User location marker added successfully');
-            } else {
-                console.log('Cannot add marker - userLocation:', window.userLocation, 'map:', window.map);
-            }
-        }
-        
         function ensureUserLocationMarkerVisible() {
-            if (window.userLocation && window.map) {
-                // Check if marker exists and is in current view
-                const mapBounds = window.map.getBounds();
-                let markerVisible = false;
+            // if (window.userLocation && window.map) {
+            //     // Check if marker exists and is in current view
+            //     const mapBounds = window.map.getBounds();
+            //     let markerVisible = false;
                 
-                if (window.userLocationMarker) {
-                    const markerLatLng = window.userLocationMarker.getLatLng();
-                    markerVisible = mapBounds.contains(markerLatLng);
-                }
+            //     if (window.userLocationMarker) {
+            //         const markerLatLng = window.userLocationMarker.getLatLng();
+            //         markerVisible = mapBounds.contains(markerLatLng);
+            //     }
                 
-                // If marker doesn't exist or is not visible, add it again
-                if (!window.userLocationMarker || !markerVisible) {
-                    console.log('Marker not visible in current view, recreating...');
-                    addUserLocationMarker();
-                }
-            }
+            //     // If marker doesn't exist or is not visible, add it again
+            //     if (!window.userLocationMarker || !markerVisible) {
+            //         console.log('Marker not visible in current view, recreating...');
+            //         addUserLocationMarker();
+            //     }
+            // }
         }
     }
 });
+
+function addUserLocationMarker() {
+    if (window.userLocation && window.map) {
+        console.log('Adding user location marker at:', window.userLocation);
+
+        if (window.marker) {
+            window.map.removeLayer(window.marker);
+            console.log('Removed existing marker');
+        }
+        
+        // Remove existing marker if it exists
+        if (window.userLocationMarker) {
+            window.map.removeLayer(window.userLocationMarker);
+            console.log('Removed existing user marker');
+        }
+        
+        // Create a custom icon for better visibility
+        const userLocationIcon = L.divIcon({
+            className: 'user-location-marker',
+            html: '<div style="background-color: #ff0000; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.5);"></div>',
+            iconSize: [20, 20],
+            iconAnchor: [10, 10]
+        });
+        
+        // Add new marker at user location
+        window.userLocationMarker = L.marker(window.userLocation, { icon: userLocationIcon })
+            .addTo(window.map)
+            .bindPopup(`Your Location<br>Latitude: ${window.userLocation[0].toFixed(4)}<br>Longitude: ${window.userLocation[1].toFixed(4)}`)
+            .openPopup();
+        console.log('User location marker added successfully');
+    } else {
+        console.log('Cannot add marker - userLocation:', window.userLocation, 'map:', window.map);
+    }
+}
 
 // Toggle Info Panel
 const infoPanel = document.getElementById('info-panel');
@@ -424,18 +435,25 @@ function updateMapTiles() {
         
         if (isDarkMode) {
             // Dark mode map - using Stadia Maps Alidade Smooth Dark (modern, vibrant, less depressing)
-            window.mapTileLayer = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
-                attribution: '© Stadia Maps © OpenMapTiles © OpenStreetMap contributors',
+            window.mapTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
+                subdomains: 'abcd',
                 noWrap: false,
-                maxZoom: 19
-            });
+                maxZoom: 8
+            }).addTo(map);
+            // window.mapTileLayer = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
+            //     attribution: '© Stadia Maps © OpenMapTiles © OpenStreetMap contributors',
+            //     noWrap: false,
+            //     maxZoom: 8
+            // });
         } else {
             // Light mode map - using standard OpenStreetMap
-            window.mapTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors',
+            window.mapTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
+                subdomains: 'abcd',
                 noWrap: false,
-                maxZoom: 19
-            });
+                maxZoom: 8
+            })
         }
         
         window.mapTileLayer.addTo(window.map);

@@ -183,7 +183,6 @@ if __name__ == "__main__":
     df = pd.DataFrame(data)
     df['time'] = pd.to_datetime(df['time'])
     #df.set_index('time', inplace=True)
-    df.drop(columns=['time'], inplace=True)
     print(df.tail())
 
     # Try out the model
