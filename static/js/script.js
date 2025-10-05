@@ -552,6 +552,15 @@ function updateMapTiles() {
     }
 }
 
+// Click HYBAU logo to refresh
+const logoEl = document.querySelector('.logo');
+if (logoEl) {
+    logoEl.style.cursor = 'pointer';
+    logoEl.addEventListener('click', () => {
+        window.location.reload();
+    });
+}
+
 // Zoom In and Zoom Out buttons
 const zoomInBtn = document.querySelector('.control-btn[data-tooltip="Zoom In"]');
 const zoomOutBtn = document.querySelector('.control-btn[data-tooltip="Zoom Out"]');
